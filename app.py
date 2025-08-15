@@ -158,36 +158,43 @@ if run_button and gene_name and variant_str:
         st.session_state.step_idx = 0
 
     # Image frames + captions
+    # frames = [
+    #     step0_b64,
+    #     step1_b64,
+    #     step2_b64,
+    #     step3_b64,
+    #     step4_b64
+    # ]
     frames = [
-        step0_b64,
-        step1_b64,
-        step2_b64,
-        step3_b64,
-        step4_b64
+    f"data:image/png;base64,{step0_b64}",
+    f"data:image/png;base64,{step1_b64}",
+    f"data:image/png;base64,{step2_b64}",
+    f"data:image/png;base64,{step3_b64}",
+    f"data:image/png;base64,{step4_b64}"
     ]
     captions_list = captions
 
     # --- BUTTON NAVIGATION ---
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
-        if st.button("⬅ Back") and st.session_state.step_idx > 0:
+        if st.button("<-- Back") and st.session_state.step_idx > 0:
             st.session_state.step_idx -= 1
     with col3:
-        if st.button("Next ➡") and st.session_state.step_idx < len(frames) - 1:
+        if st.button("Next -->") and st.session_state.step_idx < len(frames) - 1:
             st.session_state.step_idx += 1
 
     # --- DISPLAY WITH CLICKABLE IMAGE ---
     html = f"""
     <div style="font-family: sans-serif; color:black; text-align:center;">
     <img id="walkthrough" 
-        src="data:image/png;base64,{frames[st.session_state.step_idx]}" 
+        src="{frames[st.session_state.step_idx]}" 
         style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; max-width:800px; width:100%; height:auto;" />
     <div id="caption" style="margin-top:8px; font-size:1.1em;">
         {captions_list[st.session_state.step_idx]}
     </div>
     <script>
-        const frames = {frames};
-        const captions = {captions_list};
+        const frames = {json.dumps(frames)};
+        const captions = {json.dumps(captions_list)};
         let idx = {st.session_state.step_idx};
 
         const img = document.getElementById("walkthrough");
@@ -196,9 +203,8 @@ if run_button and gene_name and variant_str:
         img.addEventListener("click", () => {{
             if (idx < frames.length - 1) {{
                 idx++;
-                img.src = "data:image/png;base64," + frames[idx];
+                img.src = frames[idx];
                 cap.textContent = captions[idx];
-                fetch("?step_idx=" + idx); // Update Streamlit session (trick)
             }}
         }});
     </script>
