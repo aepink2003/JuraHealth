@@ -26,13 +26,27 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- INPUT FORM ---
+if "gene_name" not in st.session_state:
+    st.session_state.gene_name = ""
+if "variant_str" not in st.session_state:
+    st.session_state.variant_str = ""
+if "step_idx" not in st.session_state:
+    st.session_state.step_idx = 0
+
 st.title("Gene Variant Visualizer")
-gene_name = st.text_input("Enter gene (e.g., NFIX):")
-variant_str = st.text_input("Enter variant (e.g., c.240A>G):")
+gene_input = st.text_input("Enter gene (e.g., NFIX):", value=st.session_state.gene_name)
+variant_input = st.text_input("Enter variant (e.g., c.240A>G):", value=st.session_state.variant_str)
 run_button = st.button("Run Visualization")
 
-# --- ONLY RUN WHEN BUTTON CLICKED ---
-if run_button and gene_name and variant_str:
+if run_button:
+    st.session_state.gene_name = gene_input
+    st.session_state.variant_str = variant_input
+    st.session_state.step_idx = 0
+
+# --- ONLY RUN WHEN SESSION STATE HAS VALUES ---
+if st.session_state.gene_name and st.session_state.variant_str:
+    gene_name = st.session_state.gene_name
+    variant_str = st.session_state.variant_str
 
     # Classify mutation
     def classify_mutation(mutation_str: str):
