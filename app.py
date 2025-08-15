@@ -163,11 +163,17 @@ if st.session_state.gene_name and st.session_state.variant_str:
             st.rerun()
 
     st.markdown(f"<div style='font-family: sans-serif; color:black; text-align:center; margin-bottom:10px;'><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chr:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>", unsafe_allow_html=True)
-    if st.button("", key="image_click", help="Click to advance"):
-        if st.session_state.step_idx < len(frames) - 1:
-            st.session_state.step_idx += 1
-            st.rerun()
-    st.image(frames[st.session_state.step_idx], use_container_width=True, caption=captions_list[st.session_state.step_idx])
+
+    # Render clickable image using HTML
+    img_html = f"""
+    <div style='text-align:center;'>
+        <img src='{frames[st.session_state.step_idx]}' 
+             style='max-width:800px; width:100%; height:auto; cursor:pointer; border:3px solid #7B2CBF; border-radius:12px;' 
+             onclick="window.location.href='?step_idx={(st.session_state.step_idx + 1) if st.session_state.step_idx < len(frames)-1 else st.session_state.step_idx}'" />
+        <div style='margin-top:8px; font-size:16px; color:black;'>{captions_list[st.session_state.step_idx]}</div>
+    </div>
+    """
+    st.markdown(img_html, unsafe_allow_html=True)
 
     # --- CSS BUTTON STYLE ---
     st.markdown("""
