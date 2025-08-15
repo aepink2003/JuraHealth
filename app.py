@@ -117,7 +117,7 @@ if run_button and gene_name and variant_str:
     step4_b64 = file_to_b64(classify_mutation(variant_str))
 
     captions = [
-        "These are all 23 chromosomes, your variant is located on the highlighted chromosome.",
+        "These are all 23 chromosomes, your variant is located on the highlighted chromosome.\n Click on the highlighted box to learn more!",
         "This diagram explains the p arm (short) and q arm (long).",
         "This is the arm of the chromosome we will be focusing on.",
         "Chromosomes are long strands of DNA tightly packed into structures.",
