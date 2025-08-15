@@ -125,7 +125,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     step0_b64 = pil_to_b64(img)
     step1_b64 = file_to_b64("p arm q arm labeled.PNG")
-    arm_file = "Just p arm.png" if arm == "p" else "Just q arm.png"
+    arm_file = "Just p arm.PNG" if arm == "p" else "Just q arm.PNG"
     step2_b64 = file_to_b64(arm_file)
     dna_file = f"dna {arm} arm.PNG"
     step3_b64 = file_to_b64(dna_file)
