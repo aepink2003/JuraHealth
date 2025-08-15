@@ -189,7 +189,6 @@ if st.session_state.gene_name and st.session_state.variant_str:
     ]
     captions_list = captions
 
-    # --- BUTTON NAVIGATION ---
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
         if st.button("<-- Back") and st.session_state.step_idx > 0:
@@ -198,33 +197,25 @@ if st.session_state.gene_name and st.session_state.variant_str:
         if st.button("Next -->") and st.session_state.step_idx < len(frames) - 1:
             st.session_state.step_idx += 1
 
-    # --- DISPLAY WITH CLICKABLE IMAGE ---
     html = f"""
     <div style="font-family: sans-serif; color:black; text-align:center;">
         <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chr:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
-
-    <img id="walkthrough" 
-        src="{frames[st.session_state.step_idx]}" 
-        style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; max-width:800px; width:100%; height:auto;" />
-    <div id="caption" style="margin-top:8px; font-size:1.1em;">
-        {captions_list[st.session_state.step_idx]}
-    </div>
-    <script>
-        const frames = {json.dumps(frames)};
-        const captions = {json.dumps(captions_list)};
-        let idx = {st.session_state.step_idx};
-
-        const img = document.getElementById("walkthrough");
-        const cap = document.getElementById("caption");
-
-        img.addEventListener("click", () => {{
-            if (idx < frames.length - 1) {{
-                idx++;
-                img.src = frames[idx];
-                cap.textContent = captions[idx];
-            }}
-        }});
-    </script>
+        <img id="walkthrough" src="{frames[st.session_state.step_idx]}" style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; max-width:800px; width:100%; height:auto;" />
+        <div id="caption" style="margin-top:8px; font-size:1.1em;">{captions_list[st.session_state.step_idx]}</div>
+        <script>
+            const frames = {json.dumps(frames)};
+            const captions = {json.dumps(captions_list)};
+            let idx = {st.session_state.step_idx};
+            const img = document.getElementById("walkthrough");
+            const cap = document.getElementById("caption");
+            img.addEventListener("click", () => {{
+                if (idx < frames.length - 1) {{
+                    idx++;
+                    img.src = frames[idx];
+                    cap.textContent = captions[idx];
+                }}
+            }});
+        </script>
     </div>
     """
     st.components.v1.html(html, height=900)
