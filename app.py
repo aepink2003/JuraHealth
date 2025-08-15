@@ -117,11 +117,11 @@ if run_button and gene_name and variant_str:
     step4_b64 = file_to_b64(classify_mutation(variant_str))
 
     captions = [
-        "These are all 23 chromosomes, your variant is located on the highlighted chromosome.\n Click on the highlighted box to learn more!",
-        "This diagram explains the p arm (short) and q arm (long).",
-        "This is the arm of the chromosome we will be focusing on.",
-        "Chromosomes are long strands of DNA tightly packed into structures.",
-        "Example of this mutation type."
+        "These are all 23 chromosomes, your variant is located on the highlighted chromosome. Click on the highlighted box to learn more!",
+        "This diagram explains the p arm (short and on top) and q arm (long and on the bottom).",
+        "This is the arm of the chromosome we will be focusing on. This is also written above this diagram.",
+        "Chromosomes are long strands of DNA tightly packed into structures. The variations that effect genes happen in the sequences of DNA. ",
+        "Example of this variation type. The top strand represents the 'original' - the one below shows the change and how it affects the DNA sequence and how its read."
     ]
 
     html = f"""
