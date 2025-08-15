@@ -1,0 +1,7 @@
+[theme]
+base="light"
+primaryColor="#6f42c1"       # Purple accents
+backgroundColor="#FFFFFF"    # White page background
+secondaryBackgroundColor="#F8F8F8"  # Light gray for sidebar/cards
+textColor="#000000"          # Black text
+font="sans serif"
