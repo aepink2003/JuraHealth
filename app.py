@@ -164,17 +164,39 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     st.markdown(f"<div style='font-family: sans-serif; color:black; text-align:center; margin-bottom:10px;'><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chr:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>", unsafe_allow_html=True)
 
-    # Render clickable image using HTML
-    img_html = f"""
-    <div style='text-align:center;'>
-        <img src='{frames[st.session_state.step_idx]}' 
-             style='max-width:800px; width:100%; height:auto; cursor:pointer; border:3px solid #7B2CBF; border-radius:12px;' 
-             onclick="window.location.href='?step_idx={(st.session_state.step_idx + 1) if st.session_state.step_idx < len(frames)-1 else st.session_state.step_idx}'" />
-        <div style='margin-top:8px; font-size:16px; color:black;'>{captions_list[st.session_state.step_idx]}</div>
-    </div>
-    """
-    st.markdown(img_html, unsafe_allow_html=True)
+    # Make the image clickable using JavaScript in st.components.v1.html
+    import streamlit.components.v1 as components
+    # Prepare arrays for JS
+    js_frames = frames
+    js_captions = captions_list
+    idx = st.session_state.step_idx
+    max_idx = len(frames) - 1
+    # The component will post a message to Streamlit when the image is clicked
+    # and Streamlit will increase the step index.
+    # We use window.parent.postMessage to communicate with Streamlit.
+    components.html(f"""
+        <div style="text-align:center;">
+            <img id="step-img" src="{js_frames[idx]}" alt="step image" style="width:100%;max-width:500px;cursor:pointer;border-radius:8px;box-shadow:0 2px 16px #0001;" onclick="document.getElementById('caption').innerText = captions[Math.min(currentIdx+1, {max_idx})]; window.parent.postMessage({{isStreamlitMessage: true, type: 'step_image_click'}}, '*');"/>
+            <div id="caption" style="margin-top:1em;font-size:1.1em;color:#222;">{js_captions[idx]}</div>
+        </div>
+        <script>
+        var currentIdx = {idx};
+        var maxIdx = {max_idx};
+        var captions = {json.dumps(js_captions)};
+        // Listen for rerun to update image/caption
+        window.addEventListener('message', function(e) {{
+            if (e.data && e.data.type === 'streamlit:setComponentValue') {{
+                currentIdx = e.data.value;
+                document.getElementById('step-img').src = {json.dumps(js_frames)}[currentIdx];
+                document.getElementById('caption').innerText = captions[currentIdx];
+            }}
+        }});
+        </script>
+    """, height=420)
 
+    import streamlit as __st
+    image_clicked = __st.experimental_get_query_params().get("clicked", [None])[0]
+   
     # --- CSS BUTTON STYLE ---
     st.markdown("""
     <style>
