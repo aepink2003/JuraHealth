@@ -153,71 +153,71 @@ if run_button and gene_name and variant_str:
     # </div>
     # """
     # st.components.v1.html(html, height=900)
-# --- NAVIGATION STATE ---
-if "step_idx" not in st.session_state:
-    st.session_state.step_idx = 0
+    # --- NAVIGATION STATE ---
+    if "step_idx" not in st.session_state:
+        st.session_state.step_idx = 0
 
-# Image frames + captions
-frames = [
-    step0_b64,
-    step1_b64,
-    step2_b64,
-    step3_b64,
-    step4_b64
-]
-captions_list = captions
+    # Image frames + captions
+    frames = [
+        step0_b64,
+        step1_b64,
+        step2_b64,
+        step3_b64,
+        step4_b64
+    ]
+    captions_list = captions
 
-# --- BUTTON NAVIGATION ---
-col1, col2, col3 = st.columns([1, 2, 1])
-with col1:
-    if st.button("⬅ Back") and st.session_state.step_idx > 0:
-        st.session_state.step_idx -= 1
-with col3:
-    if st.button("Next ➡") and st.session_state.step_idx < len(frames) - 1:
-        st.session_state.step_idx += 1
+    # --- BUTTON NAVIGATION ---
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col1:
+        if st.button("⬅ Back") and st.session_state.step_idx > 0:
+            st.session_state.step_idx -= 1
+    with col3:
+        if st.button("Next ➡") and st.session_state.step_idx < len(frames) - 1:
+            st.session_state.step_idx += 1
 
-# --- DISPLAY WITH CLICKABLE IMAGE ---
-html = f"""
-<div style="font-family: sans-serif; color:black; text-align:center;">
-  <img id="walkthrough" 
-       src="data:image/png;base64,{frames[st.session_state.step_idx]}" 
-       style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; max-width:800px; width:100%; height:auto;" />
-  <div id="caption" style="margin-top:8px; font-size:1.1em;">
-      {captions_list[st.session_state.step_idx]}
-  </div>
-  <script>
-    const frames = {frames};
-    const captions = {captions_list};
-    let idx = {st.session_state.step_idx};
+    # --- DISPLAY WITH CLICKABLE IMAGE ---
+    html = f"""
+    <div style="font-family: sans-serif; color:black; text-align:center;">
+    <img id="walkthrough" 
+        src="data:image/png;base64,{frames[st.session_state.step_idx]}" 
+        style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; max-width:800px; width:100%; height:auto;" />
+    <div id="caption" style="margin-top:8px; font-size:1.1em;">
+        {captions_list[st.session_state.step_idx]}
+    </div>
+    <script>
+        const frames = {frames};
+        const captions = {captions_list};
+        let idx = {st.session_state.step_idx};
 
-    const img = document.getElementById("walkthrough");
-    const cap = document.getElementById("caption");
+        const img = document.getElementById("walkthrough");
+        const cap = document.getElementById("caption");
 
-    img.addEventListener("click", () => {{
-        if (idx < frames.length - 1) {{
-            idx++;
-            img.src = "data:image/png;base64," + frames[idx];
-            cap.textContent = captions[idx];
-            fetch("?step_idx=" + idx); // Update Streamlit session (trick)
-        }}
-    }});
-  </script>
-</div>
-"""
-st.components.v1.html(html, height=900)
+        img.addEventListener("click", () => {{
+            if (idx < frames.length - 1) {{
+                idx++;
+                img.src = "data:image/png;base64," + frames[idx];
+                cap.textContent = captions[idx];
+                fetch("?step_idx=" + idx); // Update Streamlit session (trick)
+            }}
+        }});
+    </script>
+    </div>
+    """
+    st.components.v1.html(html, height=900)
 
-# --- CSS BUTTON STYLE ---
-st.markdown("""
-<style>
-.stButton>button {
-    background-color: #7B2CBF;
-    color: white;
-    border-radius: 8px;
-    padding: 0.5em 1em;
-    border: none;
-}
-.stButton>button:hover {
-    background-color: #9D4EDD;
-}
-</style>
-""", unsafe_allow_html=True)
+    # --- CSS BUTTON STYLE ---
+    st.markdown("""
+    <style>
+    .stButton>button {
+        background-color: #7B2CBF;
+        color: white;
+        border-radius: 8px;
+        padding: 0.5em 1em;
+        border: none;
+    }
+    .stButton>button:hover {
+        background-color: #9D4EDD;
+    }
+    </style>
+    """, unsafe_allow_html=True)
