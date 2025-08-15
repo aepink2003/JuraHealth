@@ -2,6 +2,7 @@
 import streamlit as st
 import requests, io, base64, re
 from PIL import Image, ImageDraw
+import json
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Gene Variant Visualizer", page_icon="🧬", layout="centered")
