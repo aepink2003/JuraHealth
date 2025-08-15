@@ -123,33 +123,7 @@ if run_button and gene_name and variant_str:
         "Chromosomes are long strands of DNA tightly packed into structures. The variations that effect genes happen in the sequences of DNA. ",
         "Example of this variation type. The top strand represents the 'original' - the one below shows the change and how it affects the DNA sequence and how its read."
     ]
-    # --- Keep these at the top after imports ---
-    if "step_idx" not in st.session_state:
-        st.session_state.step_idx = 0
 
-    # Images and captions in order
-    frames = [
-        step0_b64,
-        step1_b64,
-        step2_b64,
-        step3_b64,
-        step4_b64
-    ]
-    captions_list = captions
-
-    # Navigation buttons
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col1:
-        if st.button("⬅ Back") and st.session_state.step_idx > 0:
-            st.session_state.step_idx -= 1
-    with col3:
-        if st.button("Next ➡") and st.session_state.step_idx < len(frames) - 1:
-            st.session_state.step_idx += 1
-
-# Display image + caption
-st.image(f"data:image/png;base64,{frames[st.session_state.step_idx]}", 
-         use_column_width=True)
-st.write(captions_list[st.session_state.step_idx])
     # html = f"""
     # <div style="font-family: sans-serif; color:black">
     #   <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chr:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
@@ -178,5 +152,72 @@ st.write(captions_list[st.session_state.step_idx])
     #   </script>
     # </div>
     # """
+    # st.components.v1.html(html, height=900)
+# --- NAVIGATION STATE ---
+if "step_idx" not in st.session_state:
+    st.session_state.step_idx = 0
 
-# st.components.v1.html(html, height=900)
+# Image frames + captions
+frames = [
+    step0_b64,
+    step1_b64,
+    step2_b64,
+    step3_b64,
+    step4_b64
+]
+captions_list = captions
+
+# --- BUTTON NAVIGATION ---
+col1, col2, col3 = st.columns([1, 2, 1])
+with col1:
+    if st.button("⬅ Back") and st.session_state.step_idx > 0:
+        st.session_state.step_idx -= 1
+with col3:
+    if st.button("Next ➡") and st.session_state.step_idx < len(frames) - 1:
+        st.session_state.step_idx += 1
+
+# --- DISPLAY WITH CLICKABLE IMAGE ---
+html = f"""
+<div style="font-family: sans-serif; color:black; text-align:center;">
+  <img id="walkthrough" 
+       src="data:image/png;base64,{frames[st.session_state.step_idx]}" 
+       style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; max-width:800px; width:100%; height:auto;" />
+  <div id="caption" style="margin-top:8px; font-size:1.1em;">
+      {captions_list[st.session_state.step_idx]}
+  </div>
+  <script>
+    const frames = {frames};
+    const captions = {captions_list};
+    let idx = {st.session_state.step_idx};
+
+    const img = document.getElementById("walkthrough");
+    const cap = document.getElementById("caption");
+
+    img.addEventListener("click", () => {{
+        if (idx < frames.length - 1) {{
+            idx++;
+            img.src = "data:image/png;base64," + frames[idx];
+            cap.textContent = captions[idx];
+            fetch("?step_idx=" + idx); // Update Streamlit session (trick)
+        }}
+    }});
+  </script>
+</div>
+"""
+st.components.v1.html(html, height=900)
+
+# --- CSS BUTTON STYLE ---
+st.markdown("""
+<style>
+.stButton>button {
+    background-color: #7B2CBF;
+    color: white;
+    border-radius: 8px;
+    padding: 0.5em 1em;
+    border: none;
+}
+.stButton>button:hover {
+    background-color: #9D4EDD;
+}
+</style>
+""", unsafe_allow_html=True)
