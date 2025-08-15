@@ -156,18 +156,18 @@ if st.session_state.gene_name and st.session_state.variant_str:
     with col1:
         if st.button("<-- Back") and st.session_state.step_idx > 0:
             st.session_state.step_idx -= 1
-            st.experimental_rerun()
+            st.rerun()
     with col3:
         if st.button("Next -->") and st.session_state.step_idx < len(frames) - 1:
             st.session_state.step_idx += 1
-            st.experimental_rerun()
+            st.rerun()
 
     st.markdown(f"<div style='font-family: sans-serif; color:black; text-align:center; margin-bottom:10px;'><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chr:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>", unsafe_allow_html=True)
     if st.button("", key="image_click", help="Click to advance"):
         if st.session_state.step_idx < len(frames) - 1:
             st.session_state.step_idx += 1
-            st.experimental_rerun()
-    st.image(frames[st.session_state.step_idx], use_column_width=True, caption=captions_list[st.session_state.step_idx])
+            st.rerun()
+    st.image(frames[st.session_state.step_idx], use_container_width=True, caption=captions_list[st.session_state.step_idx])
 
     # --- CSS BUTTON STYLE ---
     st.markdown("""
