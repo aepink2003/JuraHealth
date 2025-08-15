@@ -123,33 +123,60 @@ if run_button and gene_name and variant_str:
         "Chromosomes are long strands of DNA tightly packed into structures. The variations that effect genes happen in the sequences of DNA. ",
         "Example of this variation type. The top strand represents the 'original' - the one below shows the change and how it affects the DNA sequence and how its read."
     ]
+    # --- Keep these at the top after imports ---
+    if "step_idx" not in st.session_state:
+        st.session_state.step_idx = 0
 
-    html = f"""
-    <div style="font-family: sans-serif; color:black">
-      <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chr:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
-      <div style="margin-bottom:8px;">Click the image to step through →</div>
-    <img id="walkthrough" src="data:image/png;base64,{step0_b64}" 
-     style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:100%; max-width:800px; height:auto;" />      <div id="caption" style="margin-top:8px;">{captions[0]}</div>
-      <script>
-      (function() {{
-        const img = document.getElementById('walkthrough');
-        const cap = document.getElementById('caption');
-        const frames = [
-            "data:image/png;base64,{step0_b64}",
-            "data:image/png;base64,{step1_b64}",
-            "data:image/png;base64,{step2_b64}",
-            "data:image/png;base64,{step3_b64}",
-            "data:image/png;base64,{step4_b64}"
-        ];
-        const captions = {captions};
-        let idx = 0;
-        img.addEventListener('click', () => {{
-            idx = Math.min(idx + 1, frames.length - 1);
-            img.src = frames[idx];
-            cap.textContent = captions[idx];
-        }});
-      }})();
-      </script>
-    </div>
-    """
-    st.components.v1.html(html, height=900)
+    # Images and captions in order
+    frames = [
+        step0_b64,
+        step1_b64,
+        step2_b64,
+        step3_b64,
+        step4_b64
+    ]
+    captions_list = captions
+
+    # Navigation buttons
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col1:
+        if st.button("⬅ Back") and st.session_state.step_idx > 0:
+            st.session_state.step_idx -= 1
+    with col3:
+        if st.button("Next ➡") and st.session_state.step_idx < len(frames) - 1:
+            st.session_state.step_idx += 1
+
+# Display image + caption
+st.image(f"data:image/png;base64,{frames[st.session_state.step_idx]}", 
+         use_column_width=True)
+st.write(captions_list[st.session_state.step_idx])
+    # html = f"""
+    # <div style="font-family: sans-serif; color:black">
+    #   <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chr:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
+    #   <div style="margin-bottom:8px;">Click the image to step through →</div>
+    # <img id="walkthrough" src="data:image/png;base64,{step0_b64}" 
+    #  style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:100%; max-width:800px; height:auto;" />      <div id="caption" style="margin-top:8px;">{captions[0]}</div>
+    #   <script>
+    #   (function() {{
+    #     const img = document.getElementById('walkthrough');
+    #     const cap = document.getElementById('caption');
+    #     const frames = [
+    #         "data:image/png;base64,{step0_b64}",
+    #         "data:image/png;base64,{step1_b64}",
+    #         "data:image/png;base64,{step2_b64}",
+    #         "data:image/png;base64,{step3_b64}",
+    #         "data:image/png;base64,{step4_b64}"
+    #     ];
+    #     const captions = {captions};
+    #     let idx = 0;
+    #     img.addEventListener('click', () => {{
+    #         idx = Math.min(idx + 1, frames.length - 1);
+    #         img.src = frames[idx];
+    #         cap.textContent = captions[idx];
+    #     }});
+    #   }})();
+    #   </script>
+    # </div>
+    # """
+
+# st.components.v1.html(html, height=900)
