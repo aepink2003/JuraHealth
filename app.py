@@ -195,7 +195,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
     """, height=420)
 
     import streamlit as __st
-    image_clicked = __st.experimental_get_query_params().get("clicked", [None])[0]
+    image_clicked = st.query_params().get("clicked", [None])[0]
    
     # --- CSS BUTTON STYLE ---
     st.markdown("""
