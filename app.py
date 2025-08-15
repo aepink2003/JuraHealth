@@ -139,47 +139,10 @@ if st.session_state.gene_name and st.session_state.variant_str:
         "Example of this variation type. The top strand represents the 'original' - the one below shows the change and how it affects the DNA sequence and how its read."
     ]
 
-    # html = f"""
-    # <div style="font-family: sans-serif; color:black">
-    #   <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chr:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
-    #   <div style="margin-bottom:8px;">Click the image to step through →</div>
-    # <img id="walkthrough" src="data:image/png;base64,{step0_b64}" 
-    #  style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:100%; max-width:800px; height:auto;" />      <div id="caption" style="margin-top:8px;">{captions[0]}</div>
-    #   <script>
-    #   (function() {{
-    #     const img = document.getElementById('walkthrough');
-    #     const cap = document.getElementById('caption');
-    #     const frames = [
-    #         "data:image/png;base64,{step0_b64}",
-    #         "data:image/png;base64,{step1_b64}",
-    #         "data:image/png;base64,{step2_b64}",
-    #         "data:image/png;base64,{step3_b64}",
-    #         "data:image/png;base64,{step4_b64}"
-    #     ];
-    #     const captions = {captions};
-    #     let idx = 0;
-    #     img.addEventListener('click', () => {{
-    #         idx = Math.min(idx + 1, frames.length - 1);
-    #         img.src = frames[idx];
-    #         cap.textContent = captions[idx];
-    #     }});
-    #   }})();
-    #   </script>
-    # </div>
-    # """
-    # st.components.v1.html(html, height=900)
     # --- NAVIGATION STATE ---
     if "step_idx" not in st.session_state:
         st.session_state.step_idx = 0
 
-    # Image frames + captions
-    # frames = [
-    #     step0_b64,
-    #     step1_b64,
-    #     step2_b64,
-    #     step3_b64,
-    #     step4_b64
-    # ]
     frames = [
     f"data:image/png;base64,{step0_b64}",
     f"data:image/png;base64,{step1_b64}",
@@ -193,32 +156,18 @@ if st.session_state.gene_name and st.session_state.variant_str:
     with col1:
         if st.button("<-- Back") and st.session_state.step_idx > 0:
             st.session_state.step_idx -= 1
+            st.experimental_rerun()
     with col3:
         if st.button("Next -->") and st.session_state.step_idx < len(frames) - 1:
             st.session_state.step_idx += 1
+            st.experimental_rerun()
 
-    html = f"""
-    <div style="font-family: sans-serif; color:black; text-align:center;">
-        <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chr:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
-        <img id="walkthrough" src="{frames[st.session_state.step_idx]}" style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; max-width:800px; width:100%; height:auto;" />
-        <div id="caption" style="margin-top:8px; font-size:1.1em;">{captions_list[st.session_state.step_idx]}</div>
-        <script>
-            const frames = {json.dumps(frames)};
-            const captions = {json.dumps(captions_list)};
-            let idx = {st.session_state.step_idx};
-            const img = document.getElementById("walkthrough");
-            const cap = document.getElementById("caption");
-            img.addEventListener("click", () => {{
-                if (idx < frames.length - 1) {{
-                    idx++;
-                    img.src = frames[idx];
-                    cap.textContent = captions[idx];
-                }}
-            }});
-        </script>
-    </div>
-    """
-    st.components.v1.html(html, height=900)
+    st.markdown(f"<div style='font-family: sans-serif; color:black; text-align:center; margin-bottom:10px;'><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chr:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>", unsafe_allow_html=True)
+    if st.button("", key="image_click", help="Click to advance"):
+        if st.session_state.step_idx < len(frames) - 1:
+            st.session_state.step_idx += 1
+            st.experimental_rerun()
+    st.image(frames[st.session_state.step_idx], use_column_width=True, caption=captions_list[st.session_state.step_idx])
 
     # --- CSS BUTTON STYLE ---
     st.markdown("""
