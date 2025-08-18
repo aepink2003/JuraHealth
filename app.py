@@ -133,15 +133,15 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     captions = [
         "These are all 23 chromosomes, your variant is located on the highlighted chromosome. Click on the highlighted box to learn more!",
-        "This diagram explains the p arm (short and on top) and q arm (long and on the bottom).",
+        "This diagram explains the p arm (short and on top) and q arm (long and on the bottom). The p and q arms are like the 'street names' of the chromosome map. They help us know exactly where genes and variants live, and whether changes there could explain a disease.",
         "This is the arm of the chromosome we will be focusing on. This is also written above this diagram.",
-        "Chromosomes are long strands of DNA tightly packed into structures. The variations that effect genes happen in the sequences of DNA. ",
+        "Inside each chromosome are very long strands of your DNA tightly packed into structures. Your variant is inside this code, and being able to locate it is important in understanding how it can affect our health. In the next image, we will take a closer look at the structure of a chromosome that helps us give your variation its name.",
         "Example of this variation type. The top strand represents the 'original' - the one below shows the change and how it affects the DNA sequence and how its read."
     ]
 
     # html = f"""
     # <div style="font-family: sans-serif; color:black">
-    #   <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chr:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
+    #   <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chromosome:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
     #   <div style="margin-bottom:8px;">Click the image to step through →</div>
     # <img id="walkthrough" src="data:image/png;base64,{step0_b64}" 
     #  style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:100%; max-width:800px; height:auto;" />      <div id="caption" style="margin-top:8px;">{captions[0]}</div>
@@ -201,7 +201,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
     # --- DISPLAY WITH CLICKABLE IMAGE ---
     html = f"""
     <div style="font-family: sans-serif; color:black; text-align:center;">
-        <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chr:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
+        <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chromosome:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
 
     <img id="walkthrough" 
         src="{frames[st.session_state.step_idx]}" 
