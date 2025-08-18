@@ -136,7 +136,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
         "This diagram explains the p arm (short and on top) and q arm (long and on the bottom). The p and q arms are like the 'street names' of the chromosome map. They help us know exactly where genes and variants live, and whether changes there could explain a disease.",
         "This is the arm of the chromosome we will be focusing on. This is also written above this diagram.",
         "Inside each chromosome are very long strands of your DNA tightly packed into structures. Your variant is inside this code, and being able to locate it is important in understanding how it can affect our health. In the next image, we will take a closer look at the structure of a chromosome that helps us give your variation its name.",
-        "Example of this variation type. The top strand represents the 'original' - the one below shows the change and how it affects the DNA sequence and how its read."
+        "Example of this variation type. The top strand represents the 'reference' - the one below shows the change and how it affects the DNA sequence and how its read."
     ]
 
     # html = f"""
