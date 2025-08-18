@@ -203,12 +203,13 @@ if st.session_state.gene_name and st.session_state.variant_str:
     <div style="font-family: sans-serif; color:black; text-align:center;">
         <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chromosome:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
 
-    <img id="walkthrough" 
-        src="{frames[st.session_state.step_idx]}" 
-        style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:500px; height:400px ; object-fit:contain;" />
+
     <div id="caption" style="margin-top:8px; font-size:1.1em;">
         {captions_list[st.session_state.step_idx]}
     </div>
+    <img id="walkthrough" 
+        src="{frames[st.session_state.step_idx]}" 
+        style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:500px; height:400px ; object-fit:contain;" />
     <script>
         const frames = {json.dumps(frames)};
         const captions = {json.dumps(captions_list)};
