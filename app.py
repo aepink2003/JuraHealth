@@ -201,7 +201,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
     # --- DISPLAY WITH CLICKABLE IMAGE ---
     html = f"""
     <div style="font-family: sans-serif; color:black; text-align:center;">
-        <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chromosome:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
+        <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chromosome number:</strong> {chromosome_num} &nbsp;|&nbsp; <strong>Chromosome arm:</strong> {arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
 
 
     <div id="caption" style="margin-top:8px; font-size:1.1em;">
