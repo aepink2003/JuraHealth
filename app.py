@@ -54,13 +54,13 @@ if st.session_state.gene_name and st.session_state.variant_str:
         if "dup" in mut:
             return "Duplication.png"
         if "fs" in mut or "frameshift" in mut:
-            if "ins" in mut: return "Frameshift-ins.png"
+            if "ins" in mut: return "Frameshift-ins.GIF"
             if "del" in mut: return "Frameshift-del.GIF"
             return "Frameshift-del.GIF"
         if re.search(r"del", mut) and "fs" not in mut:
             return "Frameshift-del.GIF"
         if re.search(r"ins", mut) and "fs" not in mut:
-            return "Frameshift-ins.png"
+            return "Frameshift-ins.GIF"
         if "*" in mut or "ter" in mut or re.search(r"[a-z]{3}\d+x", mut):
             return "Nonsense.png"
         if ">" in mut or re.search(r"[a-z]{3}\d+[a-z]{3}", mut):
