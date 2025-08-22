@@ -146,7 +146,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
     "dna p arm.PNG": "Chromosomes are made of DNA. Here’s a closer look at the p arm where your gene lives.",
     "dna q arm.PNG": "Chromosomes are made of DNA. Here’s a closer look at the q arm where your gene lives.",
     "Frameshift-ins.GIF": "An insertion adds extra DNA letters. This shifts how the code is read, which can change the whole protein after this point.",
-    "Frameshift-del.png": "A deletion removes DNA letters. This shifts how the code is read, which can scramble the protein after this point.",
+    "Frameshift-del.GIF": "A deletion removes DNA letters. This shifts how the code is read, which can scramble the protein after this point.",
     "Missense.png": "A missense change swaps one DNA letter for another, which can change one building block in the protein.",
     "Nonsense.png": "A nonsense change tells the protein to stop too early. This can make the protein much shorter and not work properly.",
     "Duplication.png": "A duplication copies part of the DNA. This can make the protein too long or change how it works."
@@ -212,7 +212,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     captions_list = [captions[fname] for fname, _ in frames]
     frame_data = [f"data:image/png;base64,{b64}" for _, b64 in frames]
-    
+
     # --- BUTTON NAVIGATION ---
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
