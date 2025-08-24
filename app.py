@@ -235,7 +235,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
         src="{frames[st.session_state.step_idx]}" 
         style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:500px; height:400px ; object-fit:contain;" />
     <script>
-        const frames = {json.dumps(frames)};
+        const frames = {json.dumps(frame_data)};
         const captions = {json.dumps(captions_list)};
         let idx = {st.session_state.step_idx};
 
