@@ -146,7 +146,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
     "dna p arm.PNG": "Chromosomes are made of DNA. Here’s a closer look at the p arm where your gene lives.",
     "dna q arm.PNG": "Chromosomes are made of DNA. Here’s a closer look at the q arm where your gene lives.",
     "Frameshift-ins.GIF": "An insertion adds extra DNA letters. This shifts how the code is read, which can change the whole protein after this point.",
-    "Frameshift-del.GIF": "A deletion removes DNA letters. This shifts how the code is read, which can scramble the protein after this point.",
+    "Frameshift-del.png": "A deletion removes DNA letters. This shifts how the code is read, which can scramble the protein after this point.",
     "Missense.png": "A missense change swaps one DNA letter for another, which can change one building block in the protein.",
     "Nonsense.png": "A nonsense change tells the protein to stop too early. This can make the protein much shorter and not work properly.",
     "Duplication.png": "A duplication copies part of the DNA. This can make the protein too long or change how it works."
@@ -193,25 +193,14 @@ if st.session_state.gene_name and st.session_state.variant_str:
     #     step3_b64,
     #     step4_b64
     # ]
-    # frames = [
-    # f"data:image/png;base64,{step0_b64}",
-    # f"data:image/png;base64,{step1_b64}",
-    # f"data:image/png;base64,{step2_b64}",
-    # f"data:image/png;base64,{step3_b64}",
-    # f"data:image/png;base64,{step4_b64}"
-    # ]
-    # captions_list = captions
-
     frames = [
-    ("8bitChrom.png", step0_b64),
-    ("p arm q arm labeled.PNG", step1_b64),
-    (arm_file, step2_b64),
-    (f"dna {arm} arm.PNG", step3_b64),
-    (classify_mutation(variant_str), step4_b64)
-]
-
-    captions_list = [captions[fname] for fname, _ in frames]
-    frame_data = [f"data:image/png;base64,{b64}" for _, b64 in frames]
+    f"data:image/png;base64,{step0_b64}",
+    f"data:image/png;base64,{step1_b64}",
+    f"data:image/png;base64,{step2_b64}",
+    f"data:image/png;base64,{step3_b64}",
+    f"data:image/png;base64,{step4_b64}"
+    ]
+    captions_list = captions
 
     # --- BUTTON NAVIGATION ---
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -235,7 +224,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
         src="{frames[st.session_state.step_idx]}" 
         style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:500px; height:400px ; object-fit:contain;" />
     <script>
-        const frames = {json.dumps(frame_data)};
+        const frames = {json.dumps(frames)};
         const captions = {json.dumps(captions_list)};
         let idx = {st.session_state.step_idx};
 
