@@ -215,19 +215,35 @@ if st.session_state.gene_name and st.session_state.variant_str:
     st.components.v1.html(html, height=900)
 
     # --- GALLERY VIEW ---
-    st.markdown("### Step Gallery")
-    cols = st.columns(len(frames))
+    gallery_html = f"""
+<div style="margin-top:30px; text-align:center;">
+    <h3>Step Gallery</h3>
+    <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
+"""
     for i, (fname, b64) in enumerate(frames):
-        with cols[i]:
-            img_html = f"""
-            <a href="?step_idx={i}" style="text-decoration:none; color:inherit;">
-                <div style="text-align:center; cursor:pointer;">
-                    <img src="data:image/png;base64,{b64}" style="max-width:100%; border:2px solid #7B2CBF; border-radius:8px;"/>
-                    <div style="margin-top:4px;">Step {i+1}</div>
-                </div>
-            </a>
-            """
-            st.components.v1.html(img_html, height=200)
+        gallery_html += f"""
+        <div style="text-align:center; cursor:pointer;" onclick="updateStep({i})">
+            <img src="data:image/png;base64,{b64}" 
+                 style="width:120px; height:100px; object-fit:contain; border:2px solid #7B2CBF; border-radius:8px;"/>
+            <div style="margin-top:4px;">Step {i+1}</div>
+        </div>
+    """
+    gallery_html += """
+    </div>
+</div>
+<script>
+function updateStep(i) {
+    const frames = %s;
+    const captions = %s;
+    const img = document.getElementById("walkthrough");
+    const cap = document.getElementById("caption");
+    img.src = frames[i];
+    cap.textContent = captions[i];
+}
+</script>
+""" % (json.dumps(frame_data), json.dumps(captions_list))
+
+    st.components.v1.html(gallery_html, height=350)
 
     # --- CSS BUTTON STYLE ---
     st.markdown("""
