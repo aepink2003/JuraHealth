@@ -216,9 +216,9 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     # --- GALLERY VIEW ---
     gallery_html = f"""
-<div style="margin-top:0; padding-top:0; text-align:center;">
+<div style="margin-top:-10; padding-top:0; text-align:center;">
     <h3 style="margin:4px 0; padding:0;">Step Gallery</h3>
-    <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-top:0; padding-top:0;">
+    <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-top:-10; padding-top:0;">
     """
     for i, (fname, b64) in enumerate(frames):
         gallery_html += f"""
