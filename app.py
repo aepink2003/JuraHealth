@@ -219,14 +219,24 @@ if st.session_state.gene_name and st.session_state.variant_str:
     cols = st.columns(len(frames))
     for i, (fname, b64) in enumerate(frames):
         with cols[i]:
-            st.image(
-                io.BytesIO(base64.b64decode(b64)),
-                caption=f"Step {i+1}",
-                use_column_width=True
-            )
-            if st.button(f"Go to Step {i+1}", key=f"gallery_{i}"):
-                st.session_state.step_idx = i
-                st.experimental_rerun()
+            img_html = f"""
+            <div style="text-align:center; cursor:pointer;" onclick="window.parent.postMessage({{'step_idx': {i}}}, '*')">
+                <img src="data:image/png;base64,{b64}" style="max-width:100%; border:2px solid #7B2CBF; border-radius:8px;"/>
+                <div style="margin-top:4px;">Step {i+1}</div>
+            </div>
+            """
+            st.components.v1.html(img_html, height=200)
+
+    st.markdown("""
+    <script>
+    window.addEventListener("message", (event) => {
+        if (event.data.step_idx !== undefined) {
+            const idx = event.data.step_idx;
+            fetch("?step_idx=" + idx).then(() => window.location.reload());
+        }
+    });
+    </script>
+    """, unsafe_allow_html=True)
 
     # --- CSS BUTTON STYLE ---
     st.markdown("""
