@@ -145,55 +145,9 @@ if st.session_state.gene_name and st.session_state.variant_str:
     "Duplication.png": "A duplication copies part of the DNA. This can make the protein too long or change how it works."
 }
 
-    # html = f"""
-    # <div style="font-family: sans-serif; color:black">
-    #   <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chromosome:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
-    #   <div style="margin-bottom:8px;">Click the image to step through →</div>
-    # <img id="walkthrough" src="data:image/png;base64,{step0_b64}" 
-    #  style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:100%; max-width:800px; height:auto;" />      <div id="caption" style="margin-top:8px;">{captions[0]}</div>
-    #   <script>
-    #   (function() {{
-    #     const img = document.getElementById('walkthrough');
-    #     const cap = document.getElementById('caption');
-    #     const frames = [
-    #         "data:image/png;base64,{step0_b64}",
-    #         "data:image/png;base64,{step1_b64}",
-    #         "data:image/png;base64,{step2_b64}",
-    #         "data:image/png;base64,{step3_b64}",
-    #         "data:image/png;base64,{step4_b64}"
-    #     ];
-    #     const captions = {captions};
-    #     let idx = 0;
-    #     img.addEventListener('click', () => {{
-    #         idx = Math.min(idx + 1, frames.length - 1);
-    #         img.src = frames[idx];
-    #         cap.textContent = captions[idx];
-    #     }});
-    #   }})();
-    #   </script>
-    # </div>
-    # """
-    # st.components.v1.html(html, height=900)
     # --- NAVIGATION STATE ---
     if "step_idx" not in st.session_state:
         st.session_state.step_idx = 0
-
-    # Image frames + captions
-    # frames = [
-    #     step0_b64,
-    #     step1_b64,
-    #     step2_b64,
-    #     step3_b64,
-    #     step4_b64
-    # ]
-    # frames = [
-    # f"data:image/png;base64,{step0_b64}",
-    # f"data:image/png;base64,{step1_b64}",
-    # f"data:image/png;base64,{step2_b64}",
-    # f"data:image/png;base64,{step3_b64}",
-    # f"data:image/png;base64,{step4_b64}"
-    # ]
-    # captions_list = captions
 
     frames = [
     ("8bitChrom.png", step0_b64),
@@ -206,27 +160,22 @@ if st.session_state.gene_name and st.session_state.variant_str:
     captions_list = [captions[fname] for fname, _ in frames]
     frame_data = [f"data:image/png;base64,{b64}" for _, b64 in frames]
     
-    # --- BUTTON NAVIGATION ---
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col1:
-        if st.button("<-- Back") and st.session_state.step_idx > 0:
-            st.session_state.step_idx -= 1
-    with col3:
-        if st.button("Next -->") and st.session_state.step_idx < len(frames) - 1:
-            st.session_state.step_idx += 1
-
-    # --- DISPLAY WITH CLICKABLE IMAGE ---
+    # --- DISPLAY WITH CLICKABLE IMAGE AND NAVIGATION BUTTONS ---
     html = f"""
     <div style="font-family: sans-serif; color:black; text-align:center;">
         <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chromosome number:</strong> {chromosome_num} &nbsp;|&nbsp; <strong>Chromosome arm:</strong> {arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
 
+        <div style="margin-top:12px;">
+            <button id="backBtn" style="background-color:#7B2CBF; color:white; border:none; border-radius:8px; padding:0.5em 1em; margin-right:1em; cursor:pointer;">&lt;-- Back</button>
+            <button id="nextBtn" style="background-color:#7B2CBF; color:white; border:none; border-radius:8px; padding:0.5em 1em; margin-left:1em; cursor:pointer;">Next --&gt;</button>
+        </div>
 
-    <div id="caption" style="margin-top:8px; font-size:1.1em;">
-        {captions_list[st.session_state.step_idx]}
-    </div>
-    <img id="walkthrough" 
-        src="{frame_data[st.session_state.step_idx]}" 
-        style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:500px; height:400px ; object-fit:contain;" />
+        <div id="caption" style="margin-top:8px; font-size:1.1em;">
+            {captions_list[st.session_state.step_idx]}
+        </div>
+        <img id="walkthrough" 
+            src="{frame_data[st.session_state.step_idx]}" 
+            style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:500px; height:400px ; object-fit:contain;" />
     <script>
         const frames = {json.dumps(frame_data)};
         const captions = {json.dumps(captions_list)};
@@ -234,8 +183,26 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
         const img = document.getElementById("walkthrough");
         const cap = document.getElementById("caption");
+        const backBtn = document.getElementById("backBtn");
+        const nextBtn = document.getElementById("nextBtn");
 
         img.addEventListener("click", () => {{
+            if (idx < frames.length - 1) {{
+                idx++;
+                img.src = frames[idx];
+                cap.textContent = captions[idx];
+            }}
+        }});
+
+        backBtn.addEventListener("click", () => {{
+            if (idx > 0) {{
+                idx--;
+                img.src = frames[idx];
+                cap.textContent = captions[idx];
+            }}
+        }});
+
+        nextBtn.addEventListener("click", () => {{
             if (idx < frames.length - 1) {{
                 idx++;
                 img.src = frames[idx];
