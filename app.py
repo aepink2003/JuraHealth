@@ -214,6 +214,20 @@ if st.session_state.gene_name and st.session_state.variant_str:
     """
     st.components.v1.html(html, height=900)
 
+    # --- GALLERY VIEW ---
+    st.markdown("### Step Gallery")
+    cols = st.columns(len(frames))
+    for i, (fname, b64) in enumerate(frames):
+        with cols[i]:
+            st.image(
+                io.BytesIO(base64.b64decode(b64)),
+                caption=f"Step {i+1}",
+                use_column_width=True
+            )
+            if st.button(f"Go to Step {i+1}", key=f"gallery_{i}"):
+                st.session_state.step_idx = i
+                st.experimental_rerun()
+
     # --- CSS BUTTON STYLE ---
     st.markdown("""
     <style>
