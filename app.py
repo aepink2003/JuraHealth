@@ -131,13 +131,6 @@ if st.session_state.gene_name and st.session_state.variant_str:
     step3_b64 = file_to_b64(dna_file)
     step4_b64 = file_to_b64(classify_mutation(variant_str))
 
-    # captions = [
-    #     "These are all 23 chromosomes, your variant is located on the highlighted chromosome. Click on the highlighted box to learn more!",
-    #     "This diagram explains the p arm (short and on top) and q arm (long and on the bottom). The p and q arms are like the 'street names' of the chromosome map. They help us know exactly where genes and variants live, and whether changes there could explain a disease.",
-    #     "This is the arm of the chromosome we will be focusing on. This is also written above this diagram.",
-    #     "Inside each chromosome are very long strands of your DNA tightly packed into structures. Your variant is inside this code, and being able to locate it is important in understanding how it can affect our health. In the next image, we will take a closer look at the structure of a chromosome that helps us give your variation its name.",
-    #     "Example of this variation type. The top strand represents the 'reference' - the one below shows the change and how it affects the DNA sequence and how its read."
-    # ]
     captions = {
     "8bitChrom.png": "Here are all 23 pairs of human chromosomes. Your gene is on the highlighted one.",
     "p arm q arm labeled.PNG": "Each chromosome has two parts: the p arm (short, on top) and the q arm (long, on bottom).",
@@ -146,7 +139,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
     "dna p arm.PNG": "Chromosomes are made of DNA. Here’s a closer look at the p arm where your gene lives.",
     "dna q arm.PNG": "Chromosomes are made of DNA. Here’s a closer look at the q arm where your gene lives.",
     "Frameshift-ins.GIF": "An insertion adds extra DNA letters. This shifts how the code is read, which can change the whole protein after this point.",
-    "Frameshift-del.png": "A deletion removes DNA letters. This shifts how the code is read, which can scramble the protein after this point.",
+    "Frameshift-del.GIF": "A deletion removes DNA letters. This shifts how the code is read, which can scramble the protein after this point.",
     "Missense.png": "A missense change swaps one DNA letter for another, which can change one building block in the protein.",
     "Nonsense.png": "A nonsense change tells the protein to stop too early. This can make the protein much shorter and not work properly.",
     "Duplication.png": "A duplication copies part of the DNA. This can make the protein too long or change how it works."
@@ -232,10 +225,10 @@ if st.session_state.gene_name and st.session_state.variant_str:
         {captions_list[st.session_state.step_idx]}
     </div>
     <img id="walkthrough" 
-        src="{frames[st.session_state.step_idx]}" 
+        src="{frame_data[st.session_state.step_idx]}" 
         style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:500px; height:400px ; object-fit:contain;" />
     <script>
-        const frames = {json.dumps(frames)};
+        const frames = {json.dumps(frame_data)};
         const captions = {json.dumps(captions_list)};
         let idx = {st.session_state.step_idx};
 
