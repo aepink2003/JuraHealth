@@ -54,13 +54,13 @@ if st.session_state.gene_name and st.session_state.variant_str:
         if "dup" in mut:
             return "Duplication.png"
         if "fs" in mut or "frameshift" in mut:
-            if "ins" in mut: return "Frameshift-ins.png"
-            if "del" in mut: return "Frameshift-del.png"
-            return "Frameshift-del.png"
+            if "ins" in mut: return "Frameshift-ins.GIF"
+            if "del" in mut: return "Frameshift-del.GIF"
+            return "Frameshift-del.GIF"
         if re.search(r"del", mut) and "fs" not in mut:
-            return "Frameshift-del.png"
+            return "Frameshift-del.GIF"
         if re.search(r"ins", mut) and "fs" not in mut:
-            return "Frameshift-ins.png"
+            return "Frameshift-ins.GIF"
         if "*" in mut or "ter" in mut or re.search(r"[a-z]{3}\d+x", mut):
             return "Nonsense.png"
         if ">" in mut or re.search(r"[a-z]{3}\d+[a-z]{3}", mut):
@@ -131,13 +131,26 @@ if st.session_state.gene_name and st.session_state.variant_str:
     step3_b64 = file_to_b64(dna_file)
     step4_b64 = file_to_b64(classify_mutation(variant_str))
 
-    captions = [
-        "These are all 23 chromosomes, your variant is located on the highlighted chromosome. Click on the highlighted box to learn more!",
-        "This diagram explains the p arm (short and on top) and q arm (long and on the bottom). The p and q arms are like the 'street names' of the chromosome map. They help us know exactly where genes and variants live, and whether changes there could explain a disease.",
-        "This is the arm of the chromosome we will be focusing on. This is also written above this diagram.",
-        "Inside each chromosome are very long strands of your DNA tightly packed into structures. Your variant is inside this code, and being able to locate it is important in understanding how it can affect our health. In the next image, we will take a closer look at the structure of a chromosome that helps us give your variation its name.",
-        "Example of this variation type. The top strand represents the 'reference' - the one below shows the change and how it affects the DNA sequence and how its read."
-    ]
+    # captions = [
+    #     "These are all 23 chromosomes, your variant is located on the highlighted chromosome. Click on the highlighted box to learn more!",
+    #     "This diagram explains the p arm (short and on top) and q arm (long and on the bottom). The p and q arms are like the 'street names' of the chromosome map. They help us know exactly where genes and variants live, and whether changes there could explain a disease.",
+    #     "This is the arm of the chromosome we will be focusing on. This is also written above this diagram.",
+    #     "Inside each chromosome are very long strands of your DNA tightly packed into structures. Your variant is inside this code, and being able to locate it is important in understanding how it can affect our health. In the next image, we will take a closer look at the structure of a chromosome that helps us give your variation its name.",
+    #     "Example of this variation type. The top strand represents the 'reference' - the one below shows the change and how it affects the DNA sequence and how its read."
+    # ]
+    captions = {
+    "8bitChrom.png": "Here are all 23 pairs of human chromosomes. Your gene is on the highlighted one.",
+    "p arm q arm labeled.PNG": "Each chromosome has two parts: the p arm (short, on top) and the q arm (long, on bottom).",
+    "Just p arm.PNG": "We’re zooming in on the p arm of your chromosome — this is where your gene is located.",
+    "Just q arm.PNG": "We’re zooming in on the q arm of your chromosome — this is where your gene is located.",
+    "dna p arm.PNG": "Chromosomes are made of DNA. Here’s a closer look at the p arm where your gene lives.",
+    "dna q arm.PNG": "Chromosomes are made of DNA. Here’s a closer look at the q arm where your gene lives.",
+    "Frameshift-ins.GIF": "An insertion adds extra DNA letters. This shifts how the code is read, which can change the whole protein after this point.",
+    "Frameshift-del.png": "A deletion removes DNA letters. This shifts how the code is read, which can scramble the protein after this point.",
+    "Missense.png": "A missense change swaps one DNA letter for another, which can change one building block in the protein.",
+    "Nonsense.png": "A nonsense change tells the protein to stop too early. This can make the protein much shorter and not work properly.",
+    "Duplication.png": "A duplication copies part of the DNA. This can make the protein too long or change how it works."
+}
 
     # html = f"""
     # <div style="font-family: sans-serif; color:black">
@@ -180,15 +193,26 @@ if st.session_state.gene_name and st.session_state.variant_str:
     #     step3_b64,
     #     step4_b64
     # ]
-    frames = [
-    f"data:image/png;base64,{step0_b64}",
-    f"data:image/png;base64,{step1_b64}",
-    f"data:image/png;base64,{step2_b64}",
-    f"data:image/png;base64,{step3_b64}",
-    f"data:image/png;base64,{step4_b64}"
-    ]
-    captions_list = captions
+    # frames = [
+    # f"data:image/png;base64,{step0_b64}",
+    # f"data:image/png;base64,{step1_b64}",
+    # f"data:image/png;base64,{step2_b64}",
+    # f"data:image/png;base64,{step3_b64}",
+    # f"data:image/png;base64,{step4_b64}"
+    # ]
+    # captions_list = captions
 
+    frames = [
+    ("8bitChrom.png", step0_b64),
+    ("p arm q arm labeled.PNG", step1_b64),
+    (arm_file, step2_b64),
+    (f"dna {arm} arm.PNG", step3_b64),
+    (classify_mutation(variant_str), step4_b64)
+]
+
+    captions_list = [captions[fname] for fname, _ in frames]
+    frame_data = [f"data:image/png;base64,{b64}" for _, b64 in frames]
+    
     # --- BUTTON NAVIGATION ---
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
@@ -201,7 +225,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
     # --- DISPLAY WITH CLICKABLE IMAGE ---
     html = f"""
     <div style="font-family: sans-serif; color:black; text-align:center;">
-        <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chromosome:</strong> {chromosome_num}{arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
+        <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chromosome number:</strong> {chromosome_num} &nbsp;|&nbsp; <strong>Chromosome arm:</strong> {arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
 
 
     <div id="caption" style="margin-top:8px; font-size:1.1em;">
