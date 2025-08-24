@@ -212,11 +212,10 @@ if st.session_state.gene_name and st.session_state.variant_str:
     </script>
     </div>
     """
-    st.components.v1.html(html, height=900)
 
     # --- GALLERY VIEW ---
     gallery_html = f"""
-<div style="margin-top:-40px; padding-top:0; text-align:center;">
+<div style="padding-top:0; text-align:center;">
     <h3 style="margin:4px 0; padding:0;">Step Gallery</h3>
     <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-top:0; padding-top:0;">
     """
@@ -243,7 +242,9 @@ function updateStep(i) {
 </script>
 """ % (json.dumps(frame_data), json.dumps(captions_list))
 
-    st.components.v1.html(gallery_html, height=350)
+    combined_html = html + gallery_html
+
+    st.components.v1.html(combined_html, height=1200)
 
     # --- CSS BUTTON STYLE ---
     st.markdown("""
