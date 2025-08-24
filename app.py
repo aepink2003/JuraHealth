@@ -224,7 +224,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
         gallery_html += f"""
         <div style="text-align:center; cursor:pointer;" onclick="updateStep({i})">
             <img src="data:image/png;base64,{b64}" 
-                 style="width:120px; height:400px; object-fit:contain; border:2px solid #7B2CBF; border-radius:8px;"/>
+                 style="width:200px; height:200px; object-fit:contain; border:2px solid #7B2CBF; border-radius:8px;"/>
             <div style="margin-top:4px;">Step {i+1}</div>
         </div>
     """
