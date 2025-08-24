@@ -216,7 +216,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     # --- GALLERY VIEW ---
     gallery_html = f"""
-<div style="margin-top:30px; text-align:center;">
+<div style="margin-top:10px; text-align:center;">
     <h3>Step Gallery</h3>
     <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
 """
