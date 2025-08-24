@@ -220,23 +220,14 @@ if st.session_state.gene_name and st.session_state.variant_str:
     for i, (fname, b64) in enumerate(frames):
         with cols[i]:
             img_html = f"""
-            <div style="text-align:center; cursor:pointer;" onclick="window.parent.postMessage({{'step_idx': {i}}}, '*')">
-                <img src="data:image/png;base64,{b64}" style="max-width:100%; border:2px solid #7B2CBF; border-radius:8px;"/>
-                <div style="margin-top:4px;">Step {i+1}</div>
-            </div>
+            <a href="?step_idx={i}" style="text-decoration:none; color:inherit;">
+                <div style="text-align:center; cursor:pointer;">
+                    <img src="data:image/png;base64,{b64}" style="max-width:100%; border:2px solid #7B2CBF; border-radius:8px;"/>
+                    <div style="margin-top:4px;">Step {i+1}</div>
+                </div>
+            </a>
             """
             st.components.v1.html(img_html, height=200)
-
-    st.markdown("""
-    <script>
-    window.addEventListener("message", (event) => {
-        if (event.data.step_idx !== undefined) {
-            const idx = event.data.step_idx;
-            fetch("?step_idx=" + idx).then(() => window.location.reload());
-        }
-    });
-    </script>
-    """, unsafe_allow_html=True)
 
     # --- CSS BUTTON STYLE ---
     st.markdown("""
