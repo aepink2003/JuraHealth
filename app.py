@@ -58,7 +58,7 @@ if st.session_state.show_intro:
 
     if st.button("Start Visualization"):
         st.session_state.show_intro = False
-        st.rerun()
+        st.qqrerun()
     st.stop()
 
 # --- INPUT FORM ---
