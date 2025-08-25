@@ -3,6 +3,8 @@ import streamlit as st
 import requests, io, base64, re
 from PIL import Image, ImageDraw
 import json
+from pydeogram import Ideogram
+import os
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Gene Variant Visualizer", page_icon="🧬", layout="centered")
@@ -58,7 +60,7 @@ if st.session_state.show_intro:
 
     if st.button("Start Visualization"):
         st.session_state.show_intro = False
-        st.qqrerun()
+        st.rerun()
     st.stop()
 
 # --- INPUT FORM ---
@@ -160,6 +162,17 @@ if st.session_state.gene_name and st.session_state.variant_str:
             return base64.b64encode(f.read()).decode()
 
     step0_b64 = pil_to_b64(img)
+
+    # --- NEW: Pydeogram ideogram for exact location ---
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(figsize=(6, 1))
+    ideo = Ideogram("hs")  # human ideogram
+    ideo.plot(ax=ax, chromosomes=[str(chromosome_num)], region=(variant_start-100000, variant_start+100000))
+    buf = io.BytesIO()
+    plt.savefig(buf, format="PNG", bbox_inches="tight")
+    plt.close(fig)
+    step0_5_b64 = base64.b64encode(buf.getvalue()).decode()
+
     step1_b64 = file_to_b64("p arm q arm labeled.PNG")
     arm_file = "Just p arm.PNG" if arm == "p" else "Just q arm.PNG"
     step2_b64 = file_to_b64(arm_file)
@@ -169,6 +182,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     captions = {
     "8bitChrom.png": "Here are all 23 pairs of human chromosomes. Your gene is on the highlighted one.",
+    "ideogram.png": "Here’s an ideogram of your chromosome, zoomed in on the exact location of your gene.",
     "p arm q arm labeled.PNG": "Each chromosome has two parts: the p arm (short, on top) and the q arm (long, on bottom).",
     "Just p arm.PNG": "We’re zooming in on the p arm of your chromosome — this is where your gene is located.",
     "Just q arm.PNG": "We’re zooming in on the q arm of your chromosome — this is where your gene is located.",
@@ -187,6 +201,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     frames = [
     ("8bitChrom.png", step0_b64),
+    ("ideogram.png", step0_5_b64),  # 👈 new step
     ("p arm q arm labeled.PNG", step1_b64),
     (arm_file, step2_b64),
     (f"dna {arm} arm.PNG", step3_b64),
