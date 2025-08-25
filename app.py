@@ -24,6 +24,42 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+import random
+
+# --- FUN FACTS ---
+fun_facts = [
+    "All ~30,000 of your genes are tucked inside these 23 pairs of chromosomes.",
+    "If you stretched out all of the DNA in one of your cells, it would be about 6.5 feet long!",
+    "A chromosome is made up of two identical sister chromatids — the left and right halves.",
+    "Your body has around 37 trillion cells, and almost every one carries a full set of DNA.",
+    "Only ~2% of your DNA actually codes for proteins — the rest helps regulate and organize your genome.",
+    "Mitochondria have their own DNA, passed down from your mother!",
+    "The human Y chromosome is much smaller than the X chromosome — it carries fewer genes."
+]
+
+if "show_intro" not in st.session_state:
+    st.session_state.show_intro = True
+
+if st.session_state.show_intro:
+    st.title("🧬 Welcome to the Gene Variant Visualizer")
+
+    st.markdown("""
+    This tool was designed to make understanding your genetic variant easier.  
+    It walks you step-by-step from your chromosome, to the DNA sequence,  
+    and finally to what your specific variant means.  
+    """)
+    
+    fact = random.choice(fun_facts)
+    st.markdown(f"""
+    <div style="background-color:#F3F0FF; border-left:6px solid #7B2CBF; padding:12px; border-radius:8px; font-size:1.1em; color:black; margin:16px 0;">
+        💡 <strong>Did you know?</strong> {fact}
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("Start Visualization"):
+        st.session_state.show_intro = False
+        st.experimental_rerun()
+    st.stop()
 
 # --- INPUT FORM ---
 if "gene_name" not in st.session_state:
