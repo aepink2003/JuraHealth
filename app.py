@@ -205,40 +205,8 @@ if st.session_state.gene_name and st.session_state.variant_str:
     frame_data = []
     for fname, data in frames:
         if fname == "ideogram":
-            frame_data.append(
-                f"""
-  <div id='ideo-container'></div>
-  <script>
-    const gene = {{ name: '{data["gene"]}', chr: '{data["chr"]}', start: {data["start"]}, stop: {data["stop"]} }};
-    if (window.Ideogram) {{
-      new Ideogram({{
-        organism: 'human',
-        container: '#ideo-container',
-        resolution: 550,
-        chrHeight: 175,
-        chrMargin: 3,
-        annotationHeight: 4,
-        annotations: [gene]
-      }});
-    }} else {{
-      const script = document.createElement('script');
-      script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
-      script.onload = () => {{
-        new Ideogram({{
-          organism: 'human',
-          container: '#ideo-container',
-          resolution: 550,
-          chrHeight: 175,
-          chrMargin: 3,
-          annotationHeight: 4,
-          annotations: [gene]
-        }});
-      }};
-      document.head.appendChild(script);
-    }}
-  </script>
-  """
-            )
+            # Just use a marker for ideogram, not embedded script
+            frame_data.append("IDEOGRAM")
         else:
             frame_data.append(f"data:image/png;base64,{data}")
     
@@ -260,8 +228,8 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     # Insert initial frame content depending on type
     initial_frame = frame_data[st.session_state.step_idx]
-    if "ideo-container" in initial_frame:
-        html += initial_frame
+    if initial_frame == "IDEOGRAM":
+        html += "<div id='ideo-container'></div>"
     else:
         html += f'<img id="walkthrough" src="{initial_frame}" style="width:500px; height:400px; object-fit:contain;" />'
 
@@ -280,29 +248,33 @@ if st.session_state.gene_name and st.session_state.variant_str:
         function renderFrame(i) {
             const frame = frames[i];
             cap.textContent = captions[i];
-            if (frame.trim().startsWith('<div id="ideogram">')) {
-                container.innerHTML = frame;
-                // Re-run ideogram.js script by injecting it again
-                var script = document.createElement("script");
-                script.src = "https://cdn.jsdelivr.net/npm/ideogram@1.26.0/dist/js/ideogram.min.js";
-                script.onload = function() {{
-                    var ideogram = new Ideogram({{
+            if (frame === "IDEOGRAM") {
+                container.innerHTML = "<div id='ideo-container'></div>";
+                // Dynamically load ideogram.js and render
+                function renderIdeogram() {
+                    new Ideogram({
                         organism: 'human',
-                        chromosome: '""" + str(chromosome_num) + """',
-                        showBandLabels: true,
-                        annotations: [
-                            {{
-                                name: '""" + gene_name + """',
-                                chr: '""" + str(chromosome_num) + """',
-                                start: """ + str(variant_start) + """,
-                                stop: """ + str(variant_start + 1) + """,
-                                color: 'red'
-                            }}
-                        ],
-                        container: '#ideogram'
-                    }});
-                }};
-                container.appendChild(script);
+                        container: '#ideo-container',
+                        resolution: 550,
+                        chrHeight: 175,
+                        chrMargin: 3,
+                        annotationHeight: 4,
+                        annotations: [{
+                            name: '""" + gene_name + """',
+                            chr: '""" + str(chromosome_num) + """',
+                            start: """ + str(ideo_start) + """,
+                            stop: """ + str(ideo_stop) + """
+                        }]
+                    });
+                }
+                if (window.Ideogram) {
+                    renderIdeogram();
+                } else {
+                    const script = document.createElement('script');
+                    script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
+                    script.onload = renderIdeogram;
+                    document.head.appendChild(script);
+                }
             } else {
                 container.innerHTML = '<img id="walkthrough" src="' + frame + '" style="width:500px; height:400px; object-fit:contain;" />';
             }
@@ -338,11 +310,14 @@ if st.session_state.gene_name and st.session_state.variant_str:
     <h3 style="margin:4px 0; padding:0;">Step Gallery</h3>
     <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-top:0; padding-top:0;">
     """
-    for i, (fname, b64) in enumerate(frames):
+    for i, (fname, data) in enumerate(frames):
+        if fname == "ideogram":
+            thumb = "<div style='width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:#F3F0FF; color:#7B2CBF; font-weight:bold; border:2px solid #7B2CBF; border-radius:8px;'>Ideogram</div>"
+        else:
+            thumb = f"<img src='data:image/png;base64,{data}' style='width:200px; height:200px; object-fit:contain; border:2px solid #7B2CBF; border-radius:8px;'/>"
         gallery_html += f"""
         <div style="text-align:center; cursor:pointer;" onclick="updateStep({i})">
-            <img src="data:image/png;base64,{b64}" 
-                 style="width:200px; height:200px; object-fit:contain; border:2px solid #7B2CBF; border-radius:8px;"/>
+            {thumb}
             <div style="margin-top:4px;">Step {i+1}</div>
         </div>
     """
@@ -357,34 +332,45 @@ function updateStep(i) {
     const cap = document.getElementById("caption");
     const frame = frames[i];
     cap.textContent = captions[i];
-    if (frame.trim().startsWith('<div id="ideogram">')) {
-        container.innerHTML = frame;
-        var script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/ideogram@1.26.0/dist/js/ideogram.min.js";
-        script.onload = function() {
-            var ideogram = new Ideogram({
+    if (frame === "IDEOGRAM") {
+        container.innerHTML = "<div id='ideo-container'></div>";
+        function renderIdeogram() {
+            new Ideogram({
                 organism: 'human',
-                chromosome: '%s',
-                showBandLabels: true,
-                annotations: [
-                    {
-                        name: '%s',
-                        chr: '%s',
-                        start: %d,
-                        stop: %d,
-                        color: 'red'
-                    }
-                ],
-                container: '#ideogram'
+                container: '#ideo-container',
+                resolution: 550,
+                chrHeight: 175,
+                chrMargin: 3,
+                annotationHeight: 4,
+                annotations: [{
+                    name: '%s',
+                    chr: '%s',
+                    start: %d,
+                    stop: %d
+                }]
             });
-        };
-        container.appendChild(script);
+        }
+        if (window.Ideogram) {
+            renderIdeogram();
+        } else {
+            const script = document.createElement('script');
+            script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
+            script.onload = renderIdeogram;
+            document.head.appendChild(script);
+        }
     } else {
         container.innerHTML = '<img id="walkthrough" src="' + frame + '" style="width:500px; height:400px; object-fit:contain;" />';
     }
 }
 </script>
-""" % (json.dumps(frame_data), json.dumps(captions_list), str(chromosome_num), gene_name, str(chromosome_num), variant_start, variant_start + 1)
+""" % (
+    json.dumps(frame_data),
+    json.dumps(captions_list),
+    gene_name,
+    str(chromosome_num),
+    ideo_start,
+    ideo_stop
+)
 
     combined_html = html + gallery_html
 
