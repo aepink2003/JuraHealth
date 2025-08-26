@@ -250,8 +250,9 @@ if st.session_state.gene_name and st.session_state.variant_str:
             cap.textContent = captions[i];
             if (frame === "IDEOGRAM") {
                 container.innerHTML = "<div id='ideo-container'></div>";
-                // Dynamically load ideogram.js and render
+                // Dynamically load ideogram.js and always render ideogram
                 function renderIdeogram() {
+                    console.log("Rendering ideogram for gene:", '""" + gene_name + """');
                     new Ideogram({
                         organism: 'human',
                         container: '#ideo-container',
@@ -263,13 +264,18 @@ if st.session_state.gene_name and st.session_state.variant_str:
                             name: '""" + gene_name + """',
                             chr: '""" + str(chromosome_num) + """',
                             start: """ + str(ideo_start) + """,
-                            stop: """ + str(ideo_stop) + """
+                            stop: """ + str(ideo_stop) + """,
+                            color: '#E63946'
                         }]
                     });
                 }
+                // Always reload ideogram.js script to ensure fresh rendering
                 if (window.Ideogram) {
                     renderIdeogram();
                 } else {
+                    // Remove any existing script to force reload
+                    let existing = document.querySelector('script[src*="ideogram.min.js"]');
+                    if (existing) existing.remove();
                     const script = document.createElement('script');
                     script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
                     script.onload = renderIdeogram;
@@ -312,6 +318,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
     """
     for i, (fname, data) in enumerate(frames):
         if fname == "ideogram":
+            # Placeholder thumbnail for ideogram
             thumb = "<div style='width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:#F3F0FF; color:#7B2CBF; font-weight:bold; border:2px solid #7B2CBF; border-radius:8px;'>Ideogram</div>"
         else:
             thumb = f"<img src='data:image/png;base64,{data}' style='width:200px; height:200px; object-fit:contain; border:2px solid #7B2CBF; border-radius:8px;'/>"
@@ -335,6 +342,7 @@ function updateStep(i) {
     if (frame === "IDEOGRAM") {
         container.innerHTML = "<div id='ideo-container'></div>";
         function renderIdeogram() {
+            console.log("Rendering ideogram for gene:", '%s');
             new Ideogram({
                 organism: 'human',
                 container: '#ideo-container',
@@ -346,13 +354,17 @@ function updateStep(i) {
                     name: '%s',
                     chr: '%s',
                     start: %d,
-                    stop: %d
+                    stop: %d,
+                    color: '#E63946'
                 }]
             });
         }
         if (window.Ideogram) {
             renderIdeogram();
         } else {
+            // Remove any existing script to force reload
+            let existing = document.querySelector('script[src*="ideogram.min.js"]');
+            if (existing) existing.remove();
             const script = document.createElement('script');
             script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
             script.onload = renderIdeogram;
