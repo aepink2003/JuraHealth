@@ -3,8 +3,7 @@ import streamlit as st
 import requests, io, base64, re
 from PIL import Image, ImageDraw
 import json
-from pydeogram import Ideogram
-import os
+
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Gene Variant Visualizer", page_icon="🧬", layout="centered")
@@ -163,15 +162,28 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     step0_b64 = pil_to_b64(img)
 
-    # --- NEW: Pydeogram ideogram for exact location ---
-    import matplotlib.pyplot as plt
-    fig, ax = plt.subplots(figsize=(6, 1))
-    ideo = Ideogram("hs")  # human ideogram
-    ideo.plot(ax=ax, chromosomes=[str(chromosome_num)], region=(variant_start-100000, variant_start+100000))
-    buf = io.BytesIO()
-    plt.savefig(buf, format="PNG", bbox_inches="tight")
-    plt.close(fig)
-    step0_5_b64 = base64.b64encode(buf.getvalue()).decode()
+    # --- NEW: ideogram.js embed HTML ---
+    ideo_html = f"""
+    <div id="ideogram" style="width:600px; height:100px; margin:auto;"></div>
+    <script src="https://cdn.jsdelivr.net/npm/ideogram@1.26.0/dist/js/ideogram.min.js"></script>
+    <script>
+        var ideogram = new Ideogram({{
+            organism: 'human',
+            chromosome: '{chromosome_num}',
+            showBandLabels: true,
+            annotations: [
+                {{
+                    name: '{gene_name}',
+                    chr: '{chromosome_num}',
+                    start: {variant_start},
+                    stop: {variant_start + 1},
+                    color: 'red'
+                }}
+            ],
+            container: '#ideogram'
+        }});
+    </script>
+    """
 
     step1_b64 = file_to_b64("p arm q arm labeled.PNG")
     arm_file = "Just p arm.PNG" if arm == "p" else "Just q arm.PNG"
@@ -182,7 +194,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     captions = {
     "8bitChrom.png": "Here are all 23 pairs of human chromosomes. Your gene is on the highlighted one.",
-    "ideogram.png": "Here’s an ideogram of your chromosome, zoomed in on the exact location of your gene.",
+    "ideogram.html": "Here’s an ideogram of your chromosome, zoomed in on the exact location of your gene.",
     "p arm q arm labeled.PNG": "Each chromosome has two parts: the p arm (short, on top) and the q arm (long, on bottom).",
     "Just p arm.PNG": "We’re zooming in on the p arm of your chromosome — this is where your gene is located.",
     "Just q arm.PNG": "We’re zooming in on the q arm of your chromosome — this is where your gene is located.",
@@ -201,7 +213,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     frames = [
     ("8bitChrom.png", step0_b64),
-    ("ideogram.png", step0_5_b64),  # 👈 new step
+    ("ideogram.html", ideo_html),  # replaced PNG with HTML snippet
     ("p arm q arm labeled.PNG", step1_b64),
     (arm_file, step2_b64),
     (f"dna {arm} arm.PNG", step3_b64),
@@ -209,7 +221,12 @@ if st.session_state.gene_name and st.session_state.variant_str:
 ]
 
     captions_list = [captions[fname] for fname, _ in frames]
-    frame_data = [f"data:image/png;base64,{b64}" for _, b64 in frames]
+    frame_data = []
+    for fname, data in frames:
+        if fname.endswith(".html"):
+            frame_data.append(data)
+        else:
+            frame_data.append(f"data:image/png;base64,{data}")
     
     # --- DISPLAY WITH CLICKABLE IMAGE AND NAVIGATION BUTTONS ---
     html = f"""
@@ -224,42 +241,79 @@ if st.session_state.gene_name and st.session_state.variant_str:
         <div id="caption" style="margin-top:8px; font-size:1.1em;">
             {captions_list[st.session_state.step_idx]}
         </div>
-        <img id="walkthrough" 
-            src="{frame_data[st.session_state.step_idx]}" 
-            style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:500px; height:400px ; object-fit:contain;" />
-    <script>
-        const frames = {json.dumps(frame_data)};
-        const captions = {json.dumps(captions_list)};
-        let idx = {st.session_state.step_idx};
+        <div id="walkthrough_container" style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:500px; height:400px; margin:auto; display:flex; justify-content:center; align-items:center;">
+    """
 
-        const img = document.getElementById("walkthrough");
+    # Insert initial frame content depending on type
+    initial_frame = frame_data[st.session_state.step_idx]
+    if initial_frame.strip().startswith("<div id=\"ideogram\">"):
+        html += initial_frame
+    else:
+        html += f'<img id="walkthrough" src="{initial_frame}" style="width:500px; height:400px; object-fit:contain;" />'
+
+    html += """
+        </div>
+    <script>
+        const frames = """ + json.dumps(frame_data) + """;
+        const captions = """ + json.dumps(captions_list) + """;
+        let idx = """ + str(st.session_state.step_idx) + """;
+
+        const container = document.getElementById("walkthrough_container");
         const cap = document.getElementById("caption");
         const backBtn = document.getElementById("backBtn");
         const nextBtn = document.getElementById("nextBtn");
 
-        img.addEventListener("click", () => {{
-            if (idx < frames.length - 1) {{
-                idx++;
-                img.src = frames[idx];
-                cap.textContent = captions[idx];
-            }}
-        }});
+        function renderFrame(i) {
+            const frame = frames[i];
+            cap.textContent = captions[i];
+            if (frame.trim().startsWith('<div id="ideogram">')) {
+                container.innerHTML = frame;
+                // Re-run ideogram.js script by injecting it again
+                var script = document.createElement("script");
+                script.src = "https://cdn.jsdelivr.net/npm/ideogram@1.26.0/dist/js/ideogram.min.js";
+                script.onload = function() {{
+                    var ideogram = new Ideogram({{
+                        organism: 'human',
+                        chromosome: '""" + str(chromosome_num) + """',
+                        showBandLabels: true,
+                        annotations: [
+                            {{
+                                name: '""" + gene_name + """',
+                                chr: '""" + str(chromosome_num) + """',
+                                start: """ + str(variant_start) + """,
+                                stop: """ + str(variant_start + 1) + """,
+                                color: 'red'
+                            }}
+                        ],
+                        container: '#ideogram'
+                    }});
+                }};
+                container.appendChild(script);
+            } else {
+                container.innerHTML = '<img id="walkthrough" src="' + frame + '" style="width:500px; height:400px; object-fit:contain;" />';
+            }
+        }
 
-        backBtn.addEventListener("click", () => {{
-            if (idx > 0) {{
+        backBtn.addEventListener("click", () => {
+            if (idx > 0) {
                 idx--;
-                img.src = frames[idx];
-                cap.textContent = captions[idx];
-            }}
-        }});
+                renderFrame(idx);
+            }
+        });
 
-        nextBtn.addEventListener("click", () => {{
-            if (idx < frames.length - 1) {{
+        nextBtn.addEventListener("click", () => {
+            if (idx < frames.length - 1) {
                 idx++;
-                img.src = frames[idx];
-                cap.textContent = captions[idx];
-            }}
-        }});
+                renderFrame(idx);
+            }
+        });
+
+        container.addEventListener("click", () => {
+            if (idx < frames.length - 1) {
+                idx++;
+                renderFrame(idx);
+            }
+        });
     </script>
     </div>
     """
@@ -285,13 +339,38 @@ if st.session_state.gene_name and st.session_state.variant_str:
 function updateStep(i) {
     const frames = %s;
     const captions = %s;
-    const img = document.getElementById("walkthrough");
+    const container = document.getElementById("walkthrough_container");
     const cap = document.getElementById("caption");
-    img.src = frames[i];
+    const frame = frames[i];
     cap.textContent = captions[i];
+    if (frame.trim().startsWith('<div id="ideogram">')) {
+        container.innerHTML = frame;
+        var script = document.createElement("script");
+        script.src = "https://cdn.jsdelivr.net/npm/ideogram@1.26.0/dist/js/ideogram.min.js";
+        script.onload = function() {
+            var ideogram = new Ideogram({
+                organism: 'human',
+                chromosome: '%s',
+                showBandLabels: true,
+                annotations: [
+                    {
+                        name: '%s',
+                        chr: '%s',
+                        start: %d,
+                        stop: %d,
+                        color: 'red'
+                    }
+                ],
+                container: '#ideogram'
+            });
+        };
+        container.appendChild(script);
+    } else {
+        container.innerHTML = '<img id="walkthrough" src="' + frame + '" style="width:500px; height:400px; object-fit:contain;" />';
+    }
 }
 </script>
-""" % (json.dumps(frame_data), json.dumps(captions_list))
+""" % (json.dumps(frame_data), json.dumps(captions_list), str(chromosome_num), gene_name, str(chromosome_num), variant_start, variant_start + 1)
 
     combined_html = html + gallery_html
 
