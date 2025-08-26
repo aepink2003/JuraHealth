@@ -163,27 +163,8 @@ if st.session_state.gene_name and st.session_state.variant_str:
     step0_b64 = pil_to_b64(img)
 
     # --- NEW: ideogram.js embed HTML ---
-    ideo_html = f"""
-    <div id="ideogram" style="width:600px; height:100px; margin:auto;"></div>
-    <script src="https://cdn.jsdelivr.net/npm/ideogram@1.26.0/dist/js/ideogram.min.js"></script>
-    <script>
-        var ideogram = new Ideogram({{
-            organism: 'human',
-            chromosome: '{chromosome_num}',
-            showBandLabels: true,
-            annotations: [
-                {{
-                    name: '{gene_name}',
-                    chr: '{chromosome_num}',
-                    start: {variant_start},
-                    stop: {variant_start + 1},
-                    color: 'red'
-                }}
-            ],
-            container: '#ideogram'
-        }});
-    </script>
-    """
+    ideo_start = max(1, int(variant_start) - 100000) if variant_start else 1
+    ideo_stop = (int(variant_start) + 100000) if variant_start else 200000
 
     step1_b64 = file_to_b64("p arm q arm labeled.PNG")
     arm_file = "Just p arm.PNG" if arm == "p" else "Just q arm.PNG"
@@ -193,38 +174,71 @@ if st.session_state.gene_name and st.session_state.variant_str:
     step4_b64 = file_to_b64(classify_mutation(variant_str))
 
     captions = {
-    "8bitChrom.png": "Here are all 23 pairs of human chromosomes. Your gene is on the highlighted one.",
-    "ideogram.html": "Here’s an ideogram of your chromosome, zoomed in on the exact location of your gene.",
-    "p arm q arm labeled.PNG": "Each chromosome has two parts: the p arm (short, on top) and the q arm (long, on bottom).",
-    "Just p arm.PNG": "We’re zooming in on the p arm of your chromosome — this is where your gene is located.",
-    "Just q arm.PNG": "We’re zooming in on the q arm of your chromosome — this is where your gene is located.",
-    "dna p arm.PNG": "Chromosomes are made of DNA. Here’s a closer look at the p arm where your gene lives.",
-    "dna q arm.PNG": "Chromosomes are made of DNA. Here’s a closer look at the q arm where your gene lives.",
-    "Frameshift-ins.GIF": "An insertion adds extra DNA letters. This shifts how the code is read, which can change the whole protein after this point.",
-    "Frameshift-del.GIF": "A deletion removes DNA letters. This shifts how the code is read, which can scramble the protein after this point.",
-    "Missense.png": "A missense change swaps one DNA letter for another, which can change one building block in the protein.",
-    "Nonsense.png": "A nonsense change tells the protein to stop too early. This can make the protein much shorter and not work properly.",
-    "Duplication.png": "A duplication copies part of the DNA. This can make the protein too long or change how it works."
-}
+        "8bitChrom.png": "Here are all 23 pairs of human chromosomes. Your gene is on the highlighted one.",
+        "ideogram": "Here’s an ideogram of your chromosome, zoomed in on the exact location of your gene.",
+        "p arm q arm labeled.PNG": "Each chromosome has two parts: the p arm (short, on top) and the q arm (long, on bottom).",
+        "Just p arm.PNG": "We’re zooming in on the p arm of your chromosome — this is where your gene is located.",
+        "Just q arm.PNG": "We’re zooming in on the q arm of your chromosome — this is where your gene is located.",
+        "dna p arm.PNG": "Chromosomes are made of DNA. Here’s a closer look at the p arm where your gene lives.",
+        "dna q arm.PNG": "Chromosomes are made of DNA. Here’s a closer look at the q arm where your gene lives.",
+        "Frameshift-ins.GIF": "An insertion adds extra DNA letters. This shifts how the code is read, which can change the whole protein after this point.",
+        "Frameshift-del.GIF": "A deletion removes DNA letters. This shifts how the code is read, which can scramble the protein after this point.",
+        "Missense.png": "A missense change swaps one DNA letter for another, which can change one building block in the protein.",
+        "Nonsense.png": "A nonsense change tells the protein to stop too early. This can make the protein much shorter and not work properly.",
+        "Duplication.png": "A duplication copies part of the DNA. This can make the protein too long or change how it works."
+    }
 
     # --- NAVIGATION STATE ---
     if "step_idx" not in st.session_state:
         st.session_state.step_idx = 0
 
     frames = [
-    ("8bitChrom.png", step0_b64),
-    ("ideogram.html", ideo_html),  # replaced PNG with HTML snippet
-    ("p arm q arm labeled.PNG", step1_b64),
-    (arm_file, step2_b64),
-    (f"dna {arm} arm.PNG", step3_b64),
-    (classify_mutation(variant_str), step4_b64)
-]
+        ("8bitChrom.png", step0_b64),
+        ("ideogram", {"chr": str(chromosome_num), "start": ideo_start, "stop": ideo_stop, "gene": gene_name}),
+        ("p arm q arm labeled.PNG", step1_b64),
+        (arm_file, step2_b64),
+        (f"dna {arm} arm.PNG", step3_b64),
+        (classify_mutation(variant_str), step4_b64)
+    ]
 
     captions_list = [captions[fname] for fname, _ in frames]
     frame_data = []
     for fname, data in frames:
-        if fname.endswith(".html"):
-            frame_data.append(data)
+        if fname == "ideogram":
+            frame_data.append(
+                f"""
+  <div id='ideo-container'></div>
+  <script>
+    const gene = {{ name: '{data["gene"]}', chr: '{data["chr"]}', start: {data["start"]}, stop: {data["stop"]} }};
+    if (window.Ideogram) {{
+      new Ideogram({{
+        organism: 'human',
+        container: '#ideo-container',
+        resolution: 550,
+        chrHeight: 175,
+        chrMargin: 3,
+        annotationHeight: 4,
+        annotations: [gene]
+      }});
+    }} else {{
+      const script = document.createElement('script');
+      script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
+      script.onload = () => {{
+        new Ideogram({{
+          organism: 'human',
+          container: '#ideo-container',
+          resolution: 550,
+          chrHeight: 175,
+          chrMargin: 3,
+          annotationHeight: 4,
+          annotations: [gene]
+        }});
+      }};
+      document.head.appendChild(script);
+    }}
+  </script>
+  """
+            )
         else:
             frame_data.append(f"data:image/png;base64,{data}")
     
@@ -246,7 +260,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     # Insert initial frame content depending on type
     initial_frame = frame_data[st.session_state.step_idx]
-    if initial_frame.strip().startswith("<div id=\"ideogram\">"):
+    if "ideo-container" in initial_frame:
         html += initial_frame
     else:
         html += f'<img id="walkthrough" src="{initial_frame}" style="width:500px; height:400px; object-fit:contain;" />'
