@@ -198,7 +198,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
             chrHeight: 300,
             chrMargin: 20,x
             annotationHeight: 6,
-            annotations: [{gene_name}]
+            annotations: [gene]
         }});
     </script>
     """
