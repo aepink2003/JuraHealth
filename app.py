@@ -5,7 +5,7 @@ import os
 # --- HUGGING FACE CHATBOT UTILS ---
 import requests
 
-HF_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
+HF_API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-base"
 HF_HEADERS = {"Authorization": f"Bearer {os.getenv('HF_API_KEY')}"}
 
 def query_hf(prompt):
@@ -426,7 +426,7 @@ if prompt := st.chat_input("Ask about your gene or variant..."):
     variant = st.session_state.get("variant_str", "")
     
     # Query Hugging Face model
-    hf_prompt = f"Answer the question in low level language (8th grade level) Question: {prompt}"
+    hf_prompt = f"Answer the question in low level language ( 8th grade level) Question: {prompt}"
     response = query_hf(hf_prompt)
 
     # Append links
