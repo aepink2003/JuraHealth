@@ -357,14 +357,14 @@ new Ideogram({{
     </div>
 </div>
 <script>
-function updateStep(i) {
-    const frames = {json.dumps(frame_data)};
-    const captions = {json.dumps(captions_list)};
+function updateStep(i) {{
+    const frames = """ + json.dumps(frame_data) + """;
+    const captions = """ + json.dumps(captions_list) + """;
     const container = document.getElementById("walkthrough_container");
     const cap = document.getElementById("caption");
     const frame = frames[i];
     cap.textContent = captions[i];
-    if (frame === "IDEO_BLOCK") {
+    if (frame === "IDEO_BLOCK") {{
         container.innerHTML = `<div id="ideo-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
 <script>
@@ -386,10 +386,10 @@ new Ideogram({{
     }}]
 }});
 </script>`;
-    } else {
+    }} else {{
         container.innerHTML = '<img id="walkthrough" src="' + frame + '" style="width:500px; height:400px; object-fit:contain;" />';
-    }
-}
+    }}
+}}
 </script>
 """
 
