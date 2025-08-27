@@ -426,7 +426,7 @@ if prompt := st.chat_input("Ask about your gene or variant..."):
     variant = st.session_state.get("variant_str", "")
     
     # Query Hugging Face model
-    hf_prompt = f"Explain the gene {gene} and variant {variant} in simple, patient-friendly language. Question: {prompt}"
+    hf_prompt = f"Answer the question in low level language (8th grade level) Question: {prompt}"
     response = query_hf(hf_prompt)
 
     # Append links
