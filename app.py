@@ -191,7 +191,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     captions = {
         "8bitChrom.png": "Here are all 23 pairs of human chromosomes. Your gene is on the highlighted one.",
-        "ideogram": "Here’s an ideogram of your chromosome, zoomed in on the exact location of your gene.",
+        "IDEO_BLOCK": "Here’s an ideogram of your chromosome, zoomed in on the exact location of your gene.",
         "p arm q arm labeled.PNG": "Each chromosome has two parts: the p arm (short, on top) and the q arm (long, on bottom).",
         "Just p arm.PNG": "We’re zooming in on the p arm of your chromosome — this is where your gene is located.",
         "Just q arm.PNG": "We’re zooming in on the q arm of your chromosome — this is where your gene is located.",
