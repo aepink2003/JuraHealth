@@ -1,6 +1,20 @@
 # app.py
 import streamlit as st
 import requests, io, base64, re
+import os
+# --- HUGGING FACE CHATBOT UTILS ---
+import requests
+
+HF_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
+HF_HEADERS = {"Authorization": f"Bearer {os.getenv('HF_API_KEY')}"}
+
+def query_hf(prompt):
+    payload = {"inputs": prompt}
+    response = requests.post(HF_API_URL, headers=HF_HEADERS, json=payload)
+    try:
+        return response.json()[0]['generated_text']
+    except Exception as e:
+        return f"Sorry, the model did not return a valid response. Error: {e}"
 from PIL import Image, ImageDraw
 import json
 
@@ -393,7 +407,6 @@ function updateStep(i) {
     """, unsafe_allow_html=True)
 
 # --- CHATBOT SECTION ---
-st.sidebar.title("💬 Chat Assistant")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -403,21 +416,22 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# Chat input
+# Hugging Face chatbot
 if prompt := st.chat_input("Ask about your gene or variant..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Example: simple hardcoded response with useful links
     gene = st.session_state.get("gene_name", "")
     variant = st.session_state.get("variant_str", "")
-    response = f"""
-I found some resources you can explore about **{gene} {variant}**:
-- [NCBI Gene Database](https://www.ncbi.nlm.nih.gov/gene)
-- [OMIM](https://www.omim.org/)
-- [Ensembl](https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={gene})
-"""
+    
+    # Query Hugging Face model
+    hf_prompt = f"Explain the gene {gene} and variant {variant} in simple, patient-friendly language. Question: {prompt}"
+    response = query_hf(hf_prompt)
+
+    # Append links
+    response += f"\n\nUseful resources:\n- [NCBI Gene Database](https://www.ncbi.nlm.nih.gov/{gene})\n- [OMIM](https://www.omim.org/{gene})\n- [Ensembl](https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={gene})"
+
     st.session_state.messages.append({"role": "assistant", "content": response})
     with st.chat_message("assistant"):
         st.markdown(response)
