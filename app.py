@@ -180,31 +180,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
     ideo_start = max(1, int(variant_start) - 100000) if variant_start else 1
     ideo_stop = (int(variant_start) + 100000) if variant_start else 200000
 
-    ideo_html = f"""
-    <div id="ideo-container" style="width:500px; height:400px;"></div>
-    <script src="https://cdn.jsdelivr.net/npm/ideogram@1.39.0/dist/js/ideogram.min.js"></script>
-    <script>
-        const gene = {{
-            name: "{gene_name}",
-            chr: "{chromosome_num}",
-            start: {ideo_start},
-            stop: {ideo_stop}
-        }};
-        const ideogram = new Ideogram({{
-            organism: "human",
-            container: "#ideo-container",
-            chromosomes: ["{chromosome_num}"],
-            resolution: 550,
-            chrHeight: 300,
-            chrMargin: 20,
-            chrLabelSize: 18,
-            showChromosomeLabels: true,
-            annotationHeight: 6,
-            annotations: [gene]
-        }});
-    </script>
-    """
-    st.components.v1.html(ideo_html, height=450)
+    # --- REMOVED IDEOGRAM STANDALONE VIEW ---
 
     step1_b64 = file_to_b64("p arm q arm labeled.PNG")
     arm_file = "Just p arm.PNG" if arm == "p" else "Just q arm.PNG"
@@ -295,15 +271,18 @@ if st.session_state.gene_name and st.session_state.variant_str:
                     new Ideogram({
                         organism: 'human',
                         container: '#ideo-container',
+                        chromosomes: ["{chromosome_num}"],
                         resolution: 550,
-                        chrHeight: 175,
-                        chrMargin: 3,
-                        annotationHeight: 4,
+                        chrHeight: 300,
+                        chrMargin: 20,
+                        chrLabelSize: 18,
+                        showChromosomeLabels: true,
+                        annotationHeight: 6,
                         annotations: [{
-                            name: '""" + gene_name + """',
-                            chr: '""" + str(chromosome_num) + """',
-                            start: """ + str(ideo_start) + """,
-                            stop: """ + str(ideo_stop) + """
+                            name: '{gene_name}',
+                            chr: '{chromosome_num}',
+                            start: {ideo_start},
+                            stop: {ideo_stop}
                         }]
                     });
                 }
