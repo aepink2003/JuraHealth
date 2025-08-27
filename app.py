@@ -3,8 +3,6 @@ import streamlit as st
 import requests, io, base64, re
 from PIL import Image, ImageDraw
 import json
-import asyncio
-from pyppeteer import launch
 
 
 # --- PAGE CONFIG ---
@@ -168,68 +166,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
     ideo_start = max(1, int(variant_start) - 100000) if variant_start else 1
     ideo_stop = (int(variant_start) + 100000) if variant_start else 200000
 
-    # --- STATIC IDEOGRAM PNG GENERATION ---
-    async def render_ideogram_png(chromosome_num, ideo_start, ideo_stop, gene_name):
-        html_content = f"""
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <style>
-                body {{ background: white; margin:0; }}
-            </style>
-            <script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
-        </head>
-        <body>
-            <div id="ideo-container"></div>
-            <script>
-                function renderIdeogram() {{
-                    new Ideogram({{
-                        organism: 'human',
-                        container: '#ideo-container',
-                        resolution: 550,
-                        chrHeight: 175,
-                        chrMargin: 3,
-                        annotationHeight: 4,
-                        annotations: [{{
-                            name: '{gene_name}',
-                            chr: '{chromosome_num}',
-                            start: {ideo_start},
-                            stop: {ideo_stop}
-                        }}]
-                    }});
-                }}
-                if (window.Ideogram) {{
-                    renderIdeogram();
-                }} else {{
-                    const script = document.createElement('script');
-                    script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
-                    script.onload = renderIdeogram;
-                    document.head.appendChild(script);
-                }}
-            </script>
-        </body>
-        </html>
-        """
-        browser = await launch(headless=True, args=['--no-sandbox'])
-        page = await browser.newPage()
-        await page.setViewport({'width': 500, 'height': 400})
-        await page.setContent(html_content, waitUntil='networkidle0')
-        await asyncio.sleep(2)  # Give time for ideogram to render
-        png_bytes = await page.screenshot({'fullPage': False})
-        await browser.close()
-        return base64.b64encode(png_bytes).decode()
-
-    # Only run the pyppeteer rendering once per session for same gene/variant
-    if "step1_b64" not in st.session_state or \
-        st.session_state.get("step1_params") != (chromosome_num, ideo_start, ideo_stop, gene_name):
-        step1_b64 = asyncio.run(render_ideogram_png(chromosome_num, ideo_start, ideo_stop, gene_name))
-        st.session_state["step1_b64"] = step1_b64
-        st.session_state["step1_params"] = (chromosome_num, ideo_start, ideo_stop, gene_name)
-    else:
-        step1_b64 = st.session_state["step1_b64"]
-
-    # Use static PNG for ideogram step
-    # step1_b64 = file_to_b64("p arm q arm labeled.PNG")  # replaced with generated ideogram PNG
+    step1_b64 = file_to_b64("p arm q arm labeled.PNG")
     arm_file = "Just p arm.PNG" if arm == "p" else "Just q arm.PNG"
     step2_b64 = file_to_b64(arm_file)
     dna_file = f"dna {arm} arm.PNG"
@@ -257,18 +194,21 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     frames = [
         ("8bitChrom.png", step0_b64),
-        ("ideogram.png", step1_b64),
+        ("ideogram", {"chr": str(chromosome_num), "start": ideo_start, "stop": ideo_stop, "gene": gene_name}),
         ("p arm q arm labeled.PNG", step1_b64),
         (arm_file, step2_b64),
         (f"dna {arm} arm.PNG", step3_b64),
         (classify_mutation(variant_str), step4_b64)
     ]
 
-    # Remove any references to "IDEOGRAM" marker and ensure only base64 images
-    captions_mod = captions.copy()
-    captions_mod["ideogram.png"] = "Here’s an ideogram of your chromosome, zoomed in on the exact location of your gene."
-    captions_list = [captions_mod[fname] for fname, _ in frames]
-    frame_data = [f"data:image/png;base64,{data}" for fname, data in frames]
+    captions_list = [captions[fname] for fname, _ in frames]
+    frame_data = []
+    for fname, data in frames:
+        if fname == "ideogram":
+            # Just use a marker for ideogram, not embedded script
+            frame_data.append("IDEOGRAM")
+        else:
+            frame_data.append(f"data:image/png;base64,{data}")
     
     # --- DISPLAY WITH CLICKABLE IMAGE AND NAVIGATION BUTTONS ---
     html = f"""
@@ -286,9 +226,12 @@ if st.session_state.gene_name and st.session_state.variant_str:
         <div id="walkthrough_container" style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:500px; height:400px; margin:auto; display:flex; justify-content:center; align-items:center;">
     """
 
-    # Insert initial frame content (always base64 image now)
+    # Insert initial frame content depending on type
     initial_frame = frame_data[st.session_state.step_idx]
-    html += f'<img id="walkthrough" src="{initial_frame}" style="width:500px; height:400px; object-fit:contain;" />'
+    if initial_frame == "IDEOGRAM":
+        html += "<div id='ideo-container'></div>"
+    else:
+        html += f'<img id="walkthrough" src="{initial_frame}" style="width:500px; height:400px; object-fit:contain;" />'
 
     html += """
         </div>
@@ -305,7 +248,36 @@ if st.session_state.gene_name and st.session_state.variant_str:
         function renderFrame(i) {
             const frame = frames[i];
             cap.textContent = captions[i];
-            container.innerHTML = '<img id="walkthrough" src="' + frame + '" style="width:500px; height:400px; object-fit:contain;" />';
+            if (frame === "IDEOGRAM") {
+                container.innerHTML = "<div id='ideo-container'></div>";
+                // Dynamically load ideogram.js and render
+                function renderIdeogram() {
+                    new Ideogram({
+                        organism: 'human',
+                        container: '#ideo-container',
+                        resolution: 550,
+                        chrHeight: 175,
+                        chrMargin: 3,
+                        annotationHeight: 4,
+                        annotations: [{
+                            name: '""" + gene_name + """',
+                            chr: '""" + str(chromosome_num) + """',
+                            start: """ + str(ideo_start) + """,
+                            stop: """ + str(ideo_stop) + """
+                        }]
+                    });
+                }
+                if (window.Ideogram) {
+                    renderIdeogram();
+                } else {
+                    const script = document.createElement('script');
+                    script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
+                    script.onload = renderIdeogram;
+                    document.head.appendChild(script);
+                }
+            } else {
+                container.innerHTML = '<img id="walkthrough" src="' + frame + '" style="width:500px; height:400px; object-fit:contain;" />';
+            }
         }
 
         backBtn.addEventListener("click", () => {
@@ -339,7 +311,10 @@ if st.session_state.gene_name and st.session_state.variant_str:
     <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-top:0; padding-top:0;">
     """
     for i, (fname, data) in enumerate(frames):
-        thumb = f"<img src='data:image/png;base64,{data}' style='width:200px; height:200px; object-fit:contain; border:2px solid #7B2CBF; border-radius:8px;'/>"
+        if fname == "ideogram":
+            thumb = "<div style='width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:#F3F0FF; color:#7B2CBF; font-weight:bold; border:2px solid #7B2CBF; border-radius:8px;'>Ideogram</div>"
+        else:
+            thumb = f"<img src='data:image/png;base64,{data}' style='width:200px; height:200px; object-fit:contain; border:2px solid #7B2CBF; border-radius:8px;'/>"
         gallery_html += f"""
         <div style="text-align:center; cursor:pointer;" onclick="updateStep({i})">
             {thumb}
@@ -357,12 +332,44 @@ function updateStep(i) {
     const cap = document.getElementById("caption");
     const frame = frames[i];
     cap.textContent = captions[i];
-    container.innerHTML = '<img id="walkthrough" src="' + frame + '" style="width:500px; height:400px; object-fit:contain;" />';
+    if (frame === "IDEOGRAM") {
+        container.innerHTML = "<div id='ideo-container'></div>";
+        function renderIdeogram() {
+            new Ideogram({
+                organism: 'human',
+                container: '#ideo-container',
+                resolution: 550,
+                chrHeight: 175,
+                chrMargin: 3,
+                annotationHeight: 4,
+                annotations: [{
+                    name: '%s',
+                    chr: '%s',
+                    start: %d,
+                    stop: %d
+                }]
+            });
+        }
+        if (window.Ideogram) {
+            renderIdeogram();
+        } else {
+            const script = document.createElement('script');
+            script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
+            script.onload = renderIdeogram;
+            document.head.appendChild(script);
+        }
+    } else {
+        container.innerHTML = '<img id="walkthrough" src="' + frame + '" style="width:500px; height:400px; object-fit:contain;" />';
+    }
 }
 </script>
 """ % (
     json.dumps(frame_data),
-    json.dumps(captions_list)
+    json.dumps(captions_list),
+    gene_name,
+    str(chromosome_num),
+    ideo_start,
+    ideo_stop
 )
 
     combined_html = html + gallery_html
@@ -384,3 +391,33 @@ function updateStep(i) {
     }
     </style>
     """, unsafe_allow_html=True)
+
+# --- CHATBOT SECTION ---
+st.sidebar.title("💬 Chat Assistant")
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Display chat history
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+# Chat input
+if prompt := st.chat_input("Ask about your gene or variant..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # Example: simple hardcoded response with useful links
+    gene = st.session_state.get("gene_name", "")
+    variant = st.session_state.get("variant_str", "")
+    response = f"""
+I found some resources you can explore about **{gene} {variant}**:
+- [NCBI Gene Database](https://www.ncbi.nlm.nih.gov/gene)
+- [OMIM](https://www.omim.org/)
+- [Ensembl](https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={gene})
+"""
+    st.session_state.messages.append({"role": "assistant", "content": response})
+    with st.chat_message("assistant"):
+        st.markdown(response)
