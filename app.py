@@ -246,25 +246,52 @@ if st.session_state.gene_name and st.session_state.variant_str:
     if initial_frame == "IDEO_BLOCK":
         html += f"""
 <div id="ideo-container"></div>
-<script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
 <script>
-new Ideogram({{
-    organism: 'human',
-    container: '#ideo-container',
-    chromosomes: ["{chromosome_num}"],
-    resolution: 550,
-    chrHeight: 300,
-    chrMargin: 20,
-    chrLabelSize: 18,
-    showChromosomeLabels: true,
-    annotationHeight: 6,
-    annotations: [{{
-        name: "{gene_name}",
-        chr: "{chromosome_num}",
-        start: {ideo_start},
-        stop: {ideo_stop}
-    }}]
-}});
+function loadIdeogram() {{
+    if (!window.Ideogram) {{
+        const script = document.createElement('script');
+        script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
+        script.onload = function() {{
+            new Ideogram({{
+                organism: 'human',
+                container: '#ideo-container',
+                chromosomes: ["{chromosome_num}"],
+                resolution: 550,
+                chrHeight: 300,
+                chrMargin: 20,
+                chrLabelSize: 18,
+                showChromosomeLabels: true,
+                annotationHeight: 6,
+                annotations: [{{
+                    name: "{gene_name}",
+                    chr: "{chromosome_num}",
+                    start: {ideo_start},
+                    stop: {ideo_stop}
+                }}]
+            }});
+        }};
+        document.body.appendChild(script);
+    }} else {{
+        new Ideogram({{
+            organism: 'human',
+            container: '#ideo-container',
+            chromosomes: ["{chromosome_num}"],
+            resolution: 550,
+            chrHeight: 300,
+            chrMargin: 20,
+            chrLabelSize: 18,
+            showChromosomeLabels: true,
+            annotationHeight: 6,
+            annotations: [{{
+                name: "{gene_name}",
+                chr: "{chromosome_num}",
+                start: {ideo_start},
+                stop: {ideo_stop}
+            }}]
+        }});
+    }}
+}}
+loadIdeogram();
 </script>
 """
     else:
@@ -286,27 +313,52 @@ new Ideogram({{
             const frame = frames[i];
             cap.textContent = captions[i];
             if (frame === "IDEO_BLOCK") {
-                container.innerHTML = `<div id="ideo-container"></div>
-<script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
-<script>
-new Ideogram({{
-    organism: 'human',
-    container: '#ideo-container',
-    chromosomes: ["{chromosome_num}"],
-    resolution: 550,
-    chrHeight: 300,
-    chrMargin: 20,
-    chrLabelSize: 18,
-    showChromosomeLabels: true,
-    annotationHeight: 6,
-    annotations: [{{
-        name: "{gene_name}",
-        chr: "{chromosome_num}",
-        start: {ideo_start},
-        stop: {ideo_stop}
-    }}]
-}});
-</script>`;
+                container.innerHTML = `<div id="ideo-container"></div>`;
+                function loadIdeogram() {
+                    if (!window.Ideogram) {
+                        const script = document.createElement('script');
+                        script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
+                        script.onload = function() {
+                            new Ideogram({
+                                organism: 'human',
+                                container: '#ideo-container',
+                                chromosomes: ["{chromosome_num}"],
+                                resolution: 550,
+                                chrHeight: 300,
+                                chrMargin: 20,
+                                chrLabelSize: 18,
+                                showChromosomeLabels: true,
+                                annotationHeight: 6,
+                                annotations: [{
+                                    name: "{gene_name}",
+                                    chr: "{chromosome_num}",
+                                    start: {ideo_start},
+                                    stop: {ideo_stop}
+                                }]
+                            });
+                        };
+                        document.body.appendChild(script);
+                    } else {
+                        new Ideogram({
+                            organism: 'human',
+                            container: '#ideo-container',
+                            chromosomes: ["{chromosome_num}"],
+                            resolution: 550,
+                            chrHeight: 300,
+                            chrMargin: 20,
+                            chrLabelSize: 18,
+                            showChromosomeLabels: true,
+                            annotationHeight: 6,
+                            annotations: [{
+                                name: "{gene_name}",
+                                chr: "{chromosome_num}",
+                                start: {ideo_start},
+                                stop: {ideo_stop}
+                            }]
+                        });
+                    }
+                }
+                loadIdeogram();
             } else {
                 container.innerHTML = '<img id="walkthrough" src="' + frame + '" style="width:500px; height:400px; object-fit:contain;" />';
             }
@@ -365,27 +417,52 @@ function updateStep(i) {{
     const frame = frames[i];
     cap.textContent = captions[i];
     if (frame === "IDEO_BLOCK") {{
-        container.innerHTML = `<div id="ideo-container"></div>
-<script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
-<script>
-new Ideogram({{
-    organism: 'human',
-    container: '#ideo-container',
-    chromosomes: ["{chromosome_num}"],
-    resolution: 550,
-    chrHeight: 300,
-    chrMargin: 20,
-    chrLabelSize: 18,
-    showChromosomeLabels: true,
-    annotationHeight: 6,
-    annotations: [{{
-        name: "{gene_name}",
-        chr: "{chromosome_num}",
-        start: {ideo_start},
-        stop: {ideo_stop}
-    }}]
-}});
-</script>`;
+        container.innerHTML = '<div id="ideo-container"></div>';
+        function loadIdeogram() {{
+            if (!window.Ideogram) {{
+                const script = document.createElement('script');
+                script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
+                script.onload = function() {{
+                    new Ideogram({{
+                        organism: 'human',
+                        container: '#ideo-container',
+                        chromosomes: ["{chromosome_num}"],
+                        resolution: 550,
+                        chrHeight: 300,
+                        chrMargin: 20,
+                        chrLabelSize: 18,
+                        showChromosomeLabels: true,
+                        annotationHeight: 6,
+                        annotations: [{{
+                            name: "{gene_name}",
+                            chr: "{chromosome_num}",
+                            start: {ideo_start},
+                            stop: {ideo_stop}
+                        }}]
+                    }});
+                }};
+                document.body.appendChild(script);
+            }} else {{
+                new Ideogram({{
+                    organism: 'human',
+                    container: '#ideo-container',
+                    chromosomes: ["{chromosome_num}"],
+                    resolution: 550,
+                    chrHeight: 300,
+                    chrMargin: 20,
+                    chrLabelSize: 18,
+                    showChromosomeLabels: true,
+                    annotationHeight: 6,
+                    annotations: [{{
+                        name: "{gene_name}",
+                        chr: "{chromosome_num}",
+                        start: {ideo_start},
+                        stop: {ideo_stop}
+                    }}]
+                }});
+            }}
+        }}
+        loadIdeogram();
     }} else {{
         container.innerHTML = '<img id="walkthrough" src="' + frame + '" style="width:500px; height:400px; object-fit:contain;" />';
     }}
