@@ -213,8 +213,9 @@ if st.session_state.gene_name and st.session_state.variant_str:
         ("p arm q arm labeled.PNG", step1_b64),
         (arm_file, step2_b64),
         (f"dna {arm} arm.PNG", step3_b64),
-        (classify_mutation(variant_str), step4_b64),
-        ("IDEO_BLOCK", None)
+        ("IDEO_BLOCK", None),
+        (classify_mutation(variant_str), step4_b64)
+        
     ]
 
     captions_list = [captions[fname] for fname, _ in frames]
