@@ -361,60 +361,53 @@ if st.session_state.gene_name and st.session_state.variant_str:
             <div style="margin-top:4px;">Step {i+1}</div>
         </div>
     """
-    gallery_html += """
+    gallery_html += f"""
     </div>
 </div>
 <script>
-function updateStep(i) {
-    const frames = %s;
-    const captions = %s;
+function updateStep(i) {{
+    const frames = {json.dumps(frame_data)};
+    const captions = {json.dumps(captions_list)};
     const container = document.getElementById("walkthrough_container");
     const cap = document.getElementById("caption");
     const frame = frames[i];
     cap.textContent = captions[i];
- if (frame === "IDEOGRAM") {
-    container.innerHTML = "<div id='ideo-container'></div>";
-    // Dynamically load ideogram.js and render
-    function renderIdeogram() {
-        new Ideogram({
-            organism: 'human',
-            container: '#ideo-container',
-            chromosomes: ["%s"],
-            resolution: 550,
-            chrHeight: 300,
-            chrMargin: 20,
-            chrLabelSize: 18,
-            showChromosomeLabels: true,
-            annotationHeight: 6,
-            annotations: [{
-                name: '%s',
-                chr: '%s',
-                start: %d,
-                stop: %d
-            }]
-        });
-    }
-    if (window.Ideogram) {
-        renderIdeogram();
-    } else {
-        const script = document.createElement('script');
-        script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
-        script.onload = renderIdeogram;
-        document.head.appendChild(script);
-    }
-} else {
+    if (frame === "IDEOGRAM") {{
+        container.innerHTML = "<div id='ideo-container'></div>";
+        // Dynamically load ideogram.js and render
+        function renderIdeogram() {{
+            new Ideogram({{
+                organism: 'human',
+                container: '#ideo-container',
+                chromosomes: ["{chromosome_num}"],
+                resolution: 550,
+                chrHeight: 300,
+                chrMargin: 20,
+                chrLabelSize: 18,
+                showChromosomeLabels: true,
+                annotationHeight: 6,
+                annotations: [{{
+                    name: '{gene_name}',
+                    chr: '{chromosome_num}',
+                    start: {ideo_start},
+                    stop: {ideo_stop}
+                }}]
+            }});
+        }}
+        if (window.Ideogram) {{
+            renderIdeogram();
+        }} else {{
+            const script = document.createElement('script');
+            script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
+            script.onload = renderIdeogram;
+            document.head.appendChild(script);
+        }}
+    }} else {{
         container.innerHTML = '<img id="walkthrough" src="' + frame + '" style="width:500px; height:400px; object-fit:contain;" />';
-    }
-}
+    }}
+}}
 </script>
-""" % (
-    json.dumps(frame_data),
-    json.dumps(captions_list),
-    gene_name,
-    str(chromosome_num),
-    ideo_start,
-    ideo_stop
-)
+"""
 
     combined_html = html + gallery_html
 
