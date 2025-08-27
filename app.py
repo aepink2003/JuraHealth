@@ -210,7 +210,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     frames = [
         ("8bitChrom.png", step0_b64),
-        ("ideogram", {"chr": str(chromosome_num), "start": ideo_start, "stop": ideo_stop, "gene": gene_name}),
+        ("IDEO_BLOCK", None),
         ("p arm q arm labeled.PNG", step1_b64),
         (arm_file, step2_b64),
         (f"dna {arm} arm.PNG", step3_b64),
@@ -220,9 +220,8 @@ if st.session_state.gene_name and st.session_state.variant_str:
     captions_list = [captions[fname] for fname, _ in frames]
     frame_data = []
     for fname, data in frames:
-        if fname == "ideogram":
-            # Just use a marker for ideogram, not embedded script
-            frame_data.append("IDEOGRAM")
+        if fname == "IDEO_BLOCK":
+            frame_data.append("IDEO_BLOCK")
         else:
             frame_data.append(f"data:image/png;base64,{data}")
     
@@ -244,8 +243,30 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     # Insert initial frame content depending on type
     initial_frame = frame_data[st.session_state.step_idx]
-    if initial_frame == "IDEOGRAM":
-        html += "<div id='ideo-container'></div>"
+    if initial_frame == "IDEO_BLOCK":
+        html += f"""
+<div id="ideo-container"></div>
+<script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
+<script>
+new Ideogram({{
+    organism: 'human',
+    container: '#ideo-container',
+    chromosomes: ["{chromosome_num}"],
+    resolution: 550,
+    chrHeight: 300,
+    chrMargin: 20,
+    chrLabelSize: 18,
+    showChromosomeLabels: true,
+    annotationHeight: 6,
+    annotations: [{{
+        name: "{gene_name}",
+        chr: "{chromosome_num}",
+        start: {ideo_start},
+        stop: {ideo_stop}
+    }}]
+}});
+</script>
+"""
     else:
         html += f'<img id="walkthrough" src="{initial_frame}" style="width:500px; height:400px; object-fit:contain;" />'
 
@@ -264,36 +285,28 @@ if st.session_state.gene_name and st.session_state.variant_str:
         function renderFrame(i) {
             const frame = frames[i];
             cap.textContent = captions[i];
-            if (frame === "IDEOGRAM") {
-                container.innerHTML = "<div id='ideo-container'></div>";
-                // Dynamically load ideogram.js and render
-                function renderIdeogram() {
-                    new Ideogram({
-                        organism: 'human',
-                        container: '#ideo-container',
-                        chromosomes: ["{chromosome_num}"],
-                        resolution: 550,
-                        chrHeight: 300,
-                        chrMargin: 20,
-                        chrLabelSize: 18,
-                        showChromosomeLabels: true,
-                        annotationHeight: 6,
-                        annotations: [{
-                            name: "{gene_name}",
-                            chr: "{chromosome_num}",
-                            start: {ideo_start},
-                            stop: {ideo_stop}
-                        }]
-                    });
-                }
-                if (window.Ideogram) {
-                    renderIdeogram();
-                } else {
-                    const script = document.createElement('script');
-                    script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
-                    script.onload = renderIdeogram;
-                    document.head.appendChild(script);
-                }
+            if (frame === "IDEO_BLOCK") {
+                container.innerHTML = `<div id="ideo-container"></div>
+<script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
+<script>
+new Ideogram({{
+    organism: 'human',
+    container: '#ideo-container',
+    chromosomes: ["{chromosome_num}"],
+    resolution: 550,
+    chrHeight: 300,
+    chrMargin: 20,
+    chrLabelSize: 18,
+    showChromosomeLabels: true,
+    annotationHeight: 6,
+    annotations: [{{
+        name: "{gene_name}",
+        chr: "{chromosome_num}",
+        start: {ideo_start},
+        stop: {ideo_stop}
+    }}]
+}});
+</script>`;
             } else {
                 container.innerHTML = '<img id="walkthrough" src="' + frame + '" style="width:500px; height:400px; object-fit:contain;" />';
             }
@@ -330,7 +343,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
     <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-top:0; padding-top:0;">
     """
     for i, (fname, data) in enumerate(frames):
-        if fname == "ideogram":
+        if fname == "IDEO_BLOCK":
             thumb = "<div style='width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:#F3F0FF; color:#7B2CBF; font-weight:bold; border:2px solid #7B2CBF; border-radius:8px;'>Ideogram</div>"
         else:
             thumb = f"<img src='data:image/png;base64,{data}' style='width:200px; height:200px; object-fit:contain; border:2px solid #7B2CBF; border-radius:8px;'/>"
@@ -344,47 +357,39 @@ if st.session_state.gene_name and st.session_state.variant_str:
     </div>
 </div>
 <script>
-function updateStep(i) {{
+function updateStep(i) {
     const frames = {json.dumps(frame_data)};
     const captions = {json.dumps(captions_list)};
     const container = document.getElementById("walkthrough_container");
     const cap = document.getElementById("caption");
     const frame = frames[i];
     cap.textContent = captions[i];
-    if (frame === "IDEOGRAM") {{
-        container.innerHTML = "<div id='ideo-container'></div>";
-        // Dynamically load ideogram.js and render
-        function renderIdeogram() {{
-            new Ideogram({{
-                organism: 'human',
-                container: '#ideo-container',
-                chromosomes: ["{chromosome_num}"],
-                resolution: 550,
-                chrHeight: 300,
-                chrMargin: 20,
-                chrLabelSize: 18,
-                showChromosomeLabels: true,
-                annotationHeight: 6,
-                annotations: [{{
-                    name: "{gene_name}",
-                    chr: "{chromosome_num}",
-                    start: {ideo_start},
-                    stop: {ideo_stop}
-                }}]
-            }});
-        }}
-        if (window.Ideogram) {{
-            renderIdeogram();
-        }} else {{
-            const script = document.createElement('script');
-            script.src = "https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js";
-            script.onload = renderIdeogram;
-            document.head.appendChild(script);
-        }}
-    }} else {{
+    if (frame === "IDEO_BLOCK") {
+        container.innerHTML = `<div id="ideo-container"></div>
+<script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
+<script>
+new Ideogram({{
+    organism: 'human',
+    container: '#ideo-container',
+    chromosomes: ["{chromosome_num}"],
+    resolution: 550,
+    chrHeight: 300,
+    chrMargin: 20,
+    chrLabelSize: 18,
+    showChromosomeLabels: true,
+    annotationHeight: 6,
+    annotations: [{{
+        name: "{gene_name}",
+        chr: "{chromosome_num}",
+        start: {ideo_start},
+        stop: {ideo_stop}
+    }}]
+}});
+</script>`;
+    } else {
         container.innerHTML = '<img id="walkthrough" src="' + frame + '" style="width:500px; height:400px; object-fit:contain;" />';
-    }}
-}}
+    }
+}
 </script>
 """
 
