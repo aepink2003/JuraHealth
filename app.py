@@ -193,7 +193,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
         const ideogram = new Ideogram({{
             organism: "human",
             container: "#ideo-container",
-            chrSet: [{chromosome_num}],
+            chrSet: ["{chromosome_num}"],
             resolution: 550,
             chrHeight: 300,
             chrMargin: 20,
