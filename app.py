@@ -190,14 +190,14 @@ if st.session_state.gene_name and st.session_state.variant_str:
             start: {ideo_start},
             stop: {ideo_stop}
         }};
-
         const ideogram = new Ideogram({{
             organism: "human",
             container: "#ideo-container",
+            chrSet: ["{chromosome_num}"],
             resolution: 550,
-            chrHeight: 175,
-            chrMargin: 3,
-            annotationHeight: 4,
+            chrHeight: 300,
+            chrMargin: 20,
+            annotationHeight: 6,
             annotations: [gene]
         }});
     </script>
