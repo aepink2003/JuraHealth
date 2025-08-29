@@ -191,7 +191,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
 
     captions = {
         "8bitChrom.png": "Here are all 23 pairs of human chromosomes. Your gene is on the highlighted one.",
-        "IDEO_BLOCK": "Earlier, we showed the chromosome in a simplified way, with the p arm on top and the q arm on the bottom. Scientists usually show the chromosome as one vertical shape, with light and dark stripes called bands. These bands help pinpoint exactly where a gene is. That’s the view you see here. **{gene_name}**'s location is marked below",
+        "IDEO_BLOCK": "Earlier, we showed the chromosome in a simplified way, with the p arm on top and the q arm on the bottom. Scientists usually show the chromosome as one vertical shape, with light and dark stripes called bands. These bands help pinpoint exactly where a gene is. That’s the view you see here. {gene_name}'s location is marked below",
         "p arm q arm labeled.PNG": "Each chromosome has two parts: the p arm (short, on top) and the q arm (long, on bottom).",
         "Just p arm.PNG": "We’re zooming in on the p arm of your chromosome — this is where your gene is located.",
         "Just q arm.PNG": "We’re zooming in on the q arm of your chromosome — this is where your gene is located.",
