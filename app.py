@@ -44,15 +44,17 @@ fun_facts = [
 if "show_intro" not in st.session_state:
     st.session_state.show_intro = True
 
-if st.session_state.show_intro:
-    st.title("🧬 Welcome to the Gene Variant Visualizer")
-
-    # --- DISCLAIMER BOX ---
+# --- DISCLAIMER BOX ---
     st.markdown("""
     <div style="background-color:#FFCCCC; border-left:6px solid red; padding:12px; border-radius:8px; font-size:1.1em; color:black; margin:16px 0;">
-        ⚠️ <strong>Caution:</strong> This page is still under construction. Always consult with a licensed professional for medical or genetic questions.
+        <strong>Caution:</strong> This page is still under construction. Always consult with a licensed professional for medical or genetic questions.
     </div>
     """, unsafe_allow_html=True)
+    
+if st.session_state.show_intro:
+    st.title(" Welcome to the Gene Variant Visualizer")
+
+    
 
     st.markdown("""
     This tool was designed to make understanding your genetic variant easier.  
@@ -63,7 +65,7 @@ if st.session_state.show_intro:
     fact = random.choice(fun_facts)
     st.markdown(f"""
     <div style="background-color:#F3F0FF; border-left:6px solid #7B2CBF; padding:12px; border-radius:8px; font-size:1.1em; color:black; margin:16px 0;">
-        💡 <strong>Did you know?</strong> {fact}
+        <strong>Did you know?</strong> {fact}
     </div>
     """, unsafe_allow_html=True)
 
