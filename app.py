@@ -324,7 +324,7 @@ if st.session_state.gene_name and st.session_state.variant_str:
     }}
     </script>
 
-""" % (chromosome_num, gene_name, chromosome_num, ideo_start, ideo_stop)
+""" 
 
     html += """
         </div>
