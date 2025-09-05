@@ -410,13 +410,10 @@ if user_message:
 
     full_prompt = f"{context}\nUser Question: {user_message}" if context else user_message
 
-    # hugging face
-    with st.spinner("Thinking..."):
-        bot_reply = query_huggingface(full_prompt)
 
     # openai- uncomment on friday
-    # with st.spinner("Thinking..."):
-    #     bot_reply = query_openai(full_prompt)
+    with st.spinner("Thinking..."):
+        bot_reply = query_openai(full_prompt)
 
     # Save bot reply
     st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
