@@ -4,7 +4,9 @@ import requests, io, base64, re
 import os
 from PIL import Image, ImageDraw
 import json
+import openai
 
+# openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Gene Variant Visualizer", page_icon="🧬", layout="centered")
@@ -366,63 +368,27 @@ function updateStep(i) {{
 # CONFIGURATION
 # ============================================================
 
-# Hugging Face API config
-HF_API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta"
-HF_API_KEY = "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"  # or manually: "your_hf_key_here"
 
-HF_HEADERS = {"Authorization": f"Bearer {HF_API_KEY}"} if HF_API_KEY else {}
-
-# ============================================================
-# CHATBOT FUNCTIONS
-# ============================================================
-
-def query_huggingface(prompt):
-    """
-    Sends a message to the Hugging Face model and returns its response.
-    """
-    if not HF_API_KEY:
-        return "Hugging Face API key not found. Please set HF_API_KEY."
-
-    payload = {"inputs": prompt}
-    try:
-        response = requests.post(HF_API_URL, headers=HF_HEADERS, json=payload, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        # Some Hugging Face models return a list, some return a dict
-        if isinstance(data, list) and len(data) > 0:
-            return data[0].get("generated_text", "⚠️ No response text found.")
-        elif isinstance(data, dict) and "generated_text" in data:
-            return data["generated_text"]
-        else:
-            return f"Unexpected response format: {data}"
-    except requests.exceptions.RequestException as e:
-        return f"Error querying Hugging Face API: {e}"
+# chat bot func
 
 
-# ---------- OpenAI (future use, commented out for now) ----------
-# def query_openai(prompt):
-#     """
-#     Sends a message to OpenAI GPT model and returns its response.
-#     NOTE: Uncomment and use this once you have your OpenAI API key.
-#     """
-#     openai.api_key = os.environ.get("OPENAI_API_KEY")  # or manually: "your_openai_key_here"
-#     if not openai.api_key:
-#         return "OpenAI API key not found. Please set OPENAI_API_KEY."
+def query_openai(prompt):
 
-#     response = openai.ChatCompletion.create(
-#         model="gpt-4.1",
-#         messages=[
-#             {"role": "system", "content": "You are an expert geneticist explaining variants simply and clearly."},
-#             {"role": "user", "content": prompt}
-#         ]
-#     )
-#     return response["choices"][0]["message"]["content"]
+    openai.api_key = os.environ.get("OPENAI_API_KEY")  # or manually: "your_openai_key_here"
+    if not openai.api_key:
+        return "OpenAI API key not found. Please set OPENAI_API_KEY."
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4.1",
+        messages=[
+            {"role": "system", "content": "You are an expert geneticist explaining variants and genes simply and clearly as if you were talking to a middle schooler. ALWAYS INCLUDE A DISCLAIMER THAT YOU ARE AN AI- INFORMATION MAY BE INACCURATE."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    return response["choices"][0]["message"]["content"]
 
 
-# ============================================================
-# STREAMLIT CHAT UI
-# ============================================================
-
+# chat ui
 
 
 # Initialize chat history
@@ -435,8 +401,7 @@ if user_message:
     # Save user message
     st.session_state.chat_history.append({"role": "user", "content": user_message})
 
-    # Optionally include context from your app
-    # Example: gene & variant info
+    # context from app: gene & variant info
     context = ""
     if "gene_name" in st.session_state:
         context += f"Gene: {st.session_state.gene_name}\n"
@@ -445,11 +410,11 @@ if user_message:
 
     full_prompt = f"{context}\nUser Question: {user_message}" if context else user_message
 
-    # ---- CURRENTLY USING HUGGING FACE ----
+    # hugging face
     with st.spinner("Thinking..."):
         bot_reply = query_huggingface(full_prompt)
 
-    # ---- TO USE OPENAI INSTEAD ----
+    # openai- uncomment on friday
     # with st.spinner("Thinking..."):
     #     bot_reply = query_openai(full_prompt)
 
