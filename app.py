@@ -423,14 +423,13 @@ def query_huggingface(prompt):
 # STREAMLIT CHAT UI
 # ============================================================
 
-st.sidebar.title("💬 Gene Variant Chatbot")
+st.markdown("## 💬 Gene Variant Chatbot")
 
 # Initialize chat history
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# User sends a message
-user_message = st.sidebar.chat_input("Ask me about your gene or variant...")
+user_message = st.chat_input("Ask me about your gene or variant...")
 
 if user_message:
     # Save user message
@@ -447,11 +446,11 @@ if user_message:
     full_prompt = f"{context}\nUser Question: {user_message}" if context else user_message
 
     # ---- CURRENTLY USING HUGGING FACE ----
-    with st.sidebar.spinner("Thinking..."):
+    with st.spinner("Thinking..."):
         bot_reply = query_huggingface(full_prompt)
 
     # ---- TO USE OPENAI INSTEAD ----
-    # with st.sidebar.spinner("Thinking..."):
+    # with st.spinner("Thinking..."):
     #     bot_reply = query_openai(full_prompt)
 
     # Save bot reply
@@ -459,5 +458,5 @@ if user_message:
 
 # Display the chat history
 for msg in st.session_state.chat_history:
-    with st.sidebar.chat_message(msg["role"]):
+    with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
