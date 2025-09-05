@@ -488,29 +488,57 @@ function updateStep(i) {{
 from openai import OpenAI
 import streamlit as st
 
+# --- Helper function for OpenAI API key ---
+def _get_openai_api_key():
+    # Try flat secrets
+    try:
+        key = st.secrets.get("OPENAI_API_KEY", None)
+    except Exception:
+        key = None
+
+    # Try nested table: [openai] OPENAI_API_KEY="..."
+    if not key:
+        try:
+            if "openai" in st.secrets:
+                nested = st.secrets["openai"]
+                key = nested.get("OPENAI_API_KEY", None) or nested.get("api_key", None)
+        except Exception:
+            pass
+
+    # Fallback to environment
+    if not key:
+        key = os.environ.get("OPENAI_API_KEY")
+
+    return key
+
 # --- Chat function ---
 def query_openai(prompt):
-    # Get the key from Streamlit secrets
-    api_key = st.secrets["OPENAI_API_KEY"]
+    api_key = _get_openai_api_key()
     if not api_key:
-        return "OpenAI API key not found. Please set OPENAI_API_KEY in Streamlit Secrets."
+        # Do NOT crash—return a helpful note that also renders in chat
+        return (
+            "⚠️ OpenAI API key not found.\n\n"
+            "Add it in Streamlit **Secrets** as either:\n\n"
+            "```\nOPENAI_API_KEY = \"sk-...\"\n```\n"
+            "or\n"
+            "```\n[openai]\nOPENAI_API_KEY = \"sk-...\"\n```\n"
+            "You can also set the `OPENAI_API_KEY` environment variable."
+        )
 
-    # Initialize OpenAI client with project key
     client = OpenAI(api_key=api_key)
-
     try:
         response = client.chat.completions.create(
-            model="gpt-4.1",  # or gpt-5-nano if available
+            model="gpt-4.1",
             messages=[
                 {
                     "role": "system",
                     "content": (
                         "You are an expert geneticist explaining variants clearly and simply. "
                         "Always include a disclaimer that you are an AI and information may be inaccurate."
-                    )
+                    ),
                 },
-                {"role": "user", "content": prompt}
-            ]
+                {"role": "user", "content": prompt},
+            ],
         )
         return response.choices[0].message.content
     except Exception as e:
@@ -519,6 +547,13 @@ def query_openai(prompt):
 # --- Streamlit chat UI ---
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
+
+# --- Debug: Show available secret keys (names only) ---
+with st.expander("Debug: Secrets keys (names only)"):
+    try:
+        st.write("Available secret keys:", list(st.secrets.keys()))
+    except Exception:
+        st.write("No st.secrets available (running locally without .streamlit/secrets.toml?)")
 
 user_input = st.chat_input("Ask me about your gene or variant...")
 if user_input:
