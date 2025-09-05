@@ -298,31 +298,32 @@ if st.session_state.gene_name and st.session_state.variant_str:
 """
 
     # Insert static ideogram container (always present, but hidden unless IDEO_BLOCK step)
-    html += """
-        <div id="ideo-container" style="max-width:500px; width:100%; aspect-ratio:5/4; display:none;"></div>
-        <img id="walkthrough" style="max-width:100%; width:100%; height:auto; object-fit:contain; display:none;" />
-        <script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
-        <script>
-        if (!window.myIdeogram) {
-            window.myIdeogram = new Ideogram({
-                organism: 'human',
-                container: '#ideo-container',
-                chromosomes: ["%s"],
-                resolution: 550,
-                chrHeight: 300,
-                chrMargin: 20,
-                chrLabelSize: 18,
-                showChromosomeLabels: true,
-                annotationHeight: 6,
-                annotations: [{
-                    name: "%s",
-                    chr: "%s",
-                    start: %d,
-                    stop: %d
-                }]
-            });
-        }
-        </script>
+    html += f"""
+    <div id="ideo-container" style="max-width:500px; width:100%; aspect-ratio:5/4; display:none;"></div>
+    <img id="walkthrough" style="max-width:100%; width:100%; height:auto; object-fit:contain; display:none;" />
+    <script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
+    <script>
+    if (!window.myIdeogram) {{
+        window.myIdeogram = new Ideogram({{
+            organism: 'human',
+            container: '#ideo-container',
+            chromosomes: ["{chromosome_num}"],
+            resolution: 550,
+            chrHeight: 300,
+            chrMargin: 20,
+            chrLabelSize: 18,
+            showChromosomeLabels: true,
+            annotationHeight: 6,
+            annotations: [{{
+                name: "{gene_name}",
+                chr: "{chromosome_num}",
+                start: {ideo_start},
+                stop: {ideo_stop}
+            }}]
+        }});
+    }}
+    </script>
+
 """ % (chromosome_num, gene_name, chromosome_num, ideo_start, ideo_stop)
 
     html += """
