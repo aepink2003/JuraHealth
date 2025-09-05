@@ -423,7 +423,7 @@ def query_huggingface(prompt):
 # STREAMLIT CHAT UI
 # ============================================================
 
-st.markdown("## 💬 Gene Variant Chatbot")
+
 
 # Initialize chat history
 if "chat_history" not in st.session_state:
