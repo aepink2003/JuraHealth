@@ -491,7 +491,7 @@ import streamlit as st
 # --- Chat function ---
 def query_openai(prompt):
     # Get the key from Streamlit secrets
-    api_key = st.secrets["openai"]["OPENAI_API_KEY"]
+    api_key = st.secrets["OPENAI_API_KEY"]
     if not api_key:
         return "OpenAI API key not found. Please set OPENAI_API_KEY in Streamlit Secrets."
 
