@@ -47,6 +47,13 @@ if "show_intro" not in st.session_state:
 if st.session_state.show_intro:
     st.title("🧬 Welcome to the Gene Variant Visualizer")
 
+    # --- DISCLAIMER BOX ---
+    st.markdown("""
+    <div style="background-color:#FFCCCC; border-left:6px solid red; padding:12px; border-radius:8px; font-size:1.1em; color:black; margin:16px 0;">
+        ⚠️ <strong>Caution:</strong> This page is still under construction. Always consult with a licensed professional for medical or genetic questions.
+    </div>
+    """, unsafe_allow_html=True)
+
     st.markdown("""
     This tool was designed to make understanding your genetic variant easier.  
     It walks you step-by-step from your chromosome, to the DNA sequence,  
