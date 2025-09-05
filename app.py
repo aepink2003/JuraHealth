@@ -166,7 +166,7 @@ if "show_intro" not in st.session_state:
 # --- DISCLAIMER BOX ---
 st.markdown("""
 <div class="disclaimer-box">
-    <strong>Disclaimer:</strong> This page is still under construction. Always consult with a licensed professional for medical or genetic questions.
+    <strong>Disclaimer:</strong> This page is under construction. Always consult with a licensed professional for medical or genetic questions.
 </div>
 """, unsafe_allow_html=True)
 
