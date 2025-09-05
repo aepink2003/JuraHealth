@@ -372,21 +372,31 @@ function updateStep(i) {{
 # chat bot func
 
 
-def query_openai(prompt):
+from openai import OpenAI
+import os
 
-    openai.api_key = os.environ.get("OPENAI_API_KEY")  # or manually: "your_openai_key_here"
-    if not openai.api_key:
+def query_openai(prompt):
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
         return "OpenAI API key not found. Please set OPENAI_API_KEY."
 
-    response = openai.ChatCompletion.create(
+    client = OpenAI(api_key=api_key)
+
+    response = client.chat.completions.create(
         model="gpt-4.1",
         messages=[
-            {"role": "system", "content": "You are an expert geneticist explaining variants and genes simply and clearly as if you were talking to a middle schooler. ALWAYS INCLUDE A DISCLAIMER THAT YOU ARE AN AI- INFORMATION MAY BE INACCURATE."},
+            {
+                "role": "system",
+                "content": (
+                    "You are an expert geneticist explaining variants and genes simply "
+                    "and clearly as if you were talking to a middle schooler. "
+                    "ALWAYS INCLUDE A DISCLAIMER THAT YOU ARE AN AI AND INFORMATION MAY BE INACCURATE."
+                )
+            },
             {"role": "user", "content": prompt}
         ]
     )
-    return response["choices"][0]["message"]["content"]
-
+    return response.choices[0].message.content
 
 # chat ui
 
