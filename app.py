@@ -2,19 +2,7 @@
 import streamlit as st
 import requests, io, base64, re
 import os
-# --- HUGGING FACE CHATBOT UTILS ---
-import requests
 
-HF_API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-base"
-HF_HEADERS = {"Authorization": f"Bearer {os.getenv('HF_API_KEY')}"}
-
-def query_hf(prompt):
-    payload = {"inputs": prompt}
-    response = requests.post(HF_API_URL, headers=HF_HEADERS, json=payload)
-    try:
-        return response.json()[0]['generated_text']
-    except Exception as e:
-        return f"Sorry, the model did not return a valid response. Error: {e}"
 from PIL import Image, ImageDraw
 import json
 
@@ -372,32 +360,3 @@ function updateStep(i) {{
     </style>
     """, unsafe_allow_html=True)
 
-# --- CHATBOT SECTION ---
-
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-# Display chat history
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
-
-# Hugging Face chatbot
-if prompt := st.chat_input("Ask about your gene or variant..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    gene = st.session_state.get("gene_name", "")
-    variant = st.session_state.get("variant_str", "")
-    
-    # Query Hugging Face model
-    hf_prompt = f"Answer the question in low level language ( 8th grade level) Question: {prompt}"
-    response = query_hf(hf_prompt)
-
-    # Append links
-    response += f"\n\nUseful resources:\n- [NCBI Gene Database](https://www.ncbi.nlm.nih.gov/{gene})\n- [OMIM](https://www.omim.org/{gene})\n- [Ensembl](https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={gene})"
-
-    st.session_state.messages.append({"role": "assistant", "content": response})
-    with st.chat_message("assistant"):
-        st.markdown(response)
