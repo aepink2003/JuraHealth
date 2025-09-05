@@ -10,7 +10,9 @@ import openai
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Gene Variant Visualizer", page_icon="🧬", layout="centered")
+# --- Responsive meta viewport and responsive styles ---
 st.markdown("""
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
     body {
         background-color: white;
@@ -25,6 +27,61 @@ st.markdown("""
     }
     .stButton>button:hover {
         background-color: #9D4EDD;
+    }
+    /* Responsive disclaimer box */
+    .disclaimer-box {
+        background-color: #FFCCCC;
+        border: 6px solid red;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 1.1em;
+        color: black;
+        margin: 16px 0;
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+    /* Responsive walkthrough container and images */
+    #walkthrough_container, #ideo-container, #walkthrough {
+        width: 100%;
+        max-width: 500px;
+        height: auto;
+        aspect-ratio: 5/4;
+        margin: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
+    }
+    #walkthrough {
+        max-width: 100%;
+        height: auto;
+        object-fit: contain;
+    }
+    #ideo-container {
+        max-width: 100%;
+        height: auto;
+        min-height: 200px;
+    }
+    /* Responsive gallery images */
+    .step-gallery-img, .gallery-thumb img {
+        width: 100%;
+        max-width: 200px;
+        height: auto;
+        object-fit: contain;
+    }
+    @media (max-width: 600px) {
+        #walkthrough_container, #ideo-container {
+            max-width: 98vw;
+            min-width: 0;
+        }
+        #walkthrough {
+            max-width: 98vw;
+        }
+        .stButton>button {
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -46,7 +103,7 @@ if "show_intro" not in st.session_state:
 
 # --- DISCLAIMER BOX ---
 st.markdown("""
-<div style="background-color:#FFCCCC; border:6px solid red; padding:12px; border-radius:8px; font-size:1.1em; color:black; margin:16px 0;">
+<div class="disclaimer-box">
     <strong>Disclaimer:</strong> This page is still under construction. Always consult with a licensed professional for medical or genetic questions.
 </div>
 """, unsafe_allow_html=True)
@@ -237,13 +294,13 @@ if st.session_state.gene_name and st.session_state.variant_str:
         <div id="caption" style="margin-top:8px; font-size:1.1em;">
             {captions_list[st.session_state.step_idx]}
         </div>
-        <div id="walkthrough_container" style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:500px; height:400px; margin:auto; display:flex; justify-content:center; align-items:center;">
+        <div id="walkthrough_container" style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; max-width:500px; width:100%; margin:auto; display:flex; justify-content:center; align-items:center; aspect-ratio:5/4;">
 """
 
     # Insert static ideogram container (always present, but hidden unless IDEO_BLOCK step)
     html += """
-        <div id="ideo-container" style="width:500px; height:400px; display:none;"></div>
-        <img id="walkthrough" style="width:500px; height:400px; object-fit:contain; display:none;" />
+        <div id="ideo-container" style="max-width:500px; width:100%; aspect-ratio:5/4; display:none;"></div>
+        <img id="walkthrough" style="max-width:100%; width:100%; height:auto; object-fit:contain; display:none;" />
         <script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
         <script>
         if (!window.myIdeogram) {
@@ -330,11 +387,11 @@ if st.session_state.gene_name and st.session_state.variant_str:
     """
     for i, (fname, data) in enumerate(frames):
         if fname == "IDEO_BLOCK":
-            thumb = "<div style='width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:#F3F0FF; color:#7B2CBF; font-weight:bold; border:2px solid #7B2CBF; border-radius:8px;'>Ideogram</div>"
+            thumb = "<div style='width:100%; max-width:200px; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; background:#F3F0FF; color:#7B2CBF; font-weight:bold; border:2px solid #7B2CBF; border-radius:8px;'>Ideogram</div>"
         else:
-            thumb = f"<img src='data:image/png;base64,{data}' style='width:200px; height:200px; object-fit:contain; border:2px solid #7B2CBF; border-radius:8px;'/>"
+            thumb = f"<img src='data:image/png;base64,{data}' style='width:100%; max-width:200px; height:auto; object-fit:contain; border:2px solid #7B2CBF; border-radius:8px;'/>"
         gallery_html += f"""
-        <div style="text-align:center; cursor:pointer;" onclick="updateStep({i})">
+        <div class="gallery-thumb" style="text-align:center; cursor:pointer; max-width:200px;" onclick="updateStep({i})">
             {thumb}
             <div style="margin-top:4px;">Step {i+1}</div>
         </div>
@@ -355,20 +412,7 @@ function updateStep(i) {{
     st.components.v1.html(combined_html, height=1200)
 
     # --- CSS BUTTON STYLE ---
-    st.markdown("""
-    <style>
-    .stButton>button {
-        background-color: #7B2CBF;
-        color: white;
-        border-radius: 8px;
-        padding: 0.5em 1em;
-        border: none;
-    }
-    .stButton>button:hover {
-        background-color: #9D4EDD;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+# Already included responsive button style above, omit duplicate.
 
 
 # import openai  # Uncomment when switching to OpenAI
