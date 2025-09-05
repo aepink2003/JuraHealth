@@ -378,28 +378,30 @@ import os
 def query_openai(prompt):
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
-        return "OpenAI API key not found. Please set OPENAI_API_KEY."
+        return None, "OpenAI API key not found. Please set OPENAI_API_KEY."
 
     client = OpenAI(api_key=api_key)
 
-    response = client.chat.completions.create(
-        model="gpt-4.1",
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "You are an expert geneticist explaining variants and genes simply "
-                    "and clearly as if you were talking to a middle schooler. "
-                    "ALWAYS INCLUDE A DISCLAIMER THAT YOU ARE AN AI AND INFORMATION MAY BE INACCURATE."
-                )
-            },
-            {"role": "user", "content": prompt}
-        ]
-    )
-    return response.choices[0].message.content
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4.1",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are an expert geneticist explaining variants and genes simply "
+                        "and clearly as if you were talking to a middle schooler. "
+                        "ALWAYS INCLUDE A DISCLAIMER THAT YOU ARE AN AI AND INFORMATION MAY BE INACCURATE."
+                    )
+                },
+                {"role": "user", "content": prompt}
+            ]
+        )
+        return response.choices[0].message.content, None
+    except Exception as e:
+        return None, f"Error calling OpenAI API: {str(e)}"
 
-# chat ui
-
+# --- CHAT UI ---
 
 # Initialize chat history
 if "chat_history" not in st.session_state:
@@ -420,13 +422,16 @@ if user_message:
 
     full_prompt = f"{context}\nUser Question: {user_message}" if context else user_message
 
-
-    # openai- uncomment on friday
+    # Call OpenAI
     with st.spinner("Thinking..."):
-        bot_reply = query_openai(full_prompt)
+        bot_reply, error = query_openai(full_prompt)
 
-    # Save bot reply
-    st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
+    # If there's an error (e.g., missing key)
+    if error:
+        st.error(error)
+    else:
+        # Save bot reply
+        st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
 
 # Display the chat history
 for msg in st.session_state.chat_history:
