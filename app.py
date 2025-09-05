@@ -24,24 +24,25 @@ st.markdown("""
         border-radius: 8px;
         padding: 0.5em 1em;
         border: none;
+        transition: background 0.2s;
     }
     .stButton>button:hover {
         background-color: #9D4EDD;
     }
-    /* Responsive disclaimer box */
+    /* Disclaimer box keeps red border and large font, responsive */
     .disclaimer-box {
         background-color: #FFCCCC;
         border: 6px solid red;
         padding: 12px;
         border-radius: 8px;
-        font-size: 1.1em;
+        font-size: 1.25em;
         color: black;
         margin: 16px 0;
         box-sizing: border-box;
         max-width: 100%;
     }
-    /* Responsive walkthrough container and images */
-    #walkthrough_container, #ideo-container, #walkthrough {
+    /* Responsive walkthrough containers and images */
+    #walkthrough_container, #ideo-container {
         width: 100%;
         max-width: 500px;
         height: auto;
@@ -53,34 +54,60 @@ st.markdown("""
         box-sizing: border-box;
     }
     #walkthrough {
-        max-width: 100%;
+        width: 100%;
+        max-width: 500px;
         height: auto;
+        aspect-ratio: 5/4;
         object-fit: contain;
+        display: block;
+        margin: auto;
+        box-sizing: border-box;
     }
     #ideo-container {
-        max-width: 100%;
+        width: 100%;
+        max-width: 500px;
         height: auto;
         min-height: 200px;
+        aspect-ratio: 5/4;
+        margin: auto;
+        box-sizing: border-box;
     }
-    /* Responsive gallery images */
+    /* Gallery images responsive */
     .step-gallery-img, .gallery-thumb img {
         width: 100%;
         max-width: 200px;
         height: auto;
         object-fit: contain;
+        display: block;
+        margin: auto;
+    }
+    .gallery-thumb {
+        max-width: 200px;
+        width: 100%;
+        box-sizing: border-box;
     }
     @media (max-width: 600px) {
         #walkthrough_container, #ideo-container {
-            max-width: 98vw;
+            max-width: 98vw !important;
+            width: 98vw !important;
             min-width: 0;
         }
         #walkthrough {
-            max-width: 98vw;
+            max-width: 98vw !important;
+            width: 98vw !important;
         }
         .stButton>button {
-            width: 100%;
+            width: 100% !important;
             min-width: 0;
             box-sizing: border-box;
+        }
+        .gallery-thumb {
+            max-width: 98vw !important;
+            width: 98vw !important;
+        }
+        .step-gallery-img, .gallery-thumb img {
+            max-width: 98vw !important;
+            width: 98vw !important;
         }
     }
 </style>
