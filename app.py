@@ -485,16 +485,15 @@ function updateStep(i) {{
 # ============================================================
 
 
-# chat bot func
-
+# --- CHAT BOT FUNCTION ---
 
 from openai import OpenAI
-import os
+import streamlit as st
 
 def query_openai(prompt):
-    api_key = os.environ.get("OPENAI_API_KEY")
+    api_key = st.secrets.get("OPENAI_API_KEY")
     if not api_key:
-        return None, "OpenAI API key not found. Please set OPENAI_API_KEY."
+        return None, "OpenAI API key not found. Please set OPENAI_API_KEY in Streamlit Secrets."
 
     client = OpenAI(api_key=api_key)
 
@@ -519,17 +518,15 @@ def query_openai(prompt):
 
 # --- CHAT UI ---
 
-# Initialize chat history
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
 user_message = st.chat_input("Ask me about your gene or variant...")
 
 if user_message:
-    # Save user message
     st.session_state.chat_history.append({"role": "user", "content": user_message})
 
-    # context from app: gene & variant info
+    # context from app
     context = ""
     if "gene_name" in st.session_state:
         context += f"Gene: {st.session_state.gene_name}\n"
@@ -538,18 +535,15 @@ if user_message:
 
     full_prompt = f"{context}\nUser Question: {user_message}" if context else user_message
 
-    # Call OpenAI
     with st.spinner("Thinking..."):
         bot_reply, error = query_openai(full_prompt)
 
-    # If there's an error (e.g., missing key)
     if error:
         st.error(error)
     else:
-        # Save bot reply
         st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
 
-# Display the chat history
+# Display chat history
 for msg in st.session_state.chat_history:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
