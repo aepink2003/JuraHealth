@@ -490,15 +490,17 @@ import streamlit as st
 
 # --- Chat function ---
 def query_openai(prompt):
-    api_key = st.secrets.get("OPENAI_API_KEY")
+    # Get the key from Streamlit secrets
+    api_key = st.secrets["openai"]["OPENAI_API_KEY"]
     if not api_key:
         return "OpenAI API key not found. Please set OPENAI_API_KEY in Streamlit Secrets."
 
+    # Initialize OpenAI client with project key
     client = OpenAI(api_key=api_key)
 
     try:
         response = client.chat.completions.create(
-            model="gpt-5-nano",  # or gpt-4, gpt-4.1
+            model="gpt-4.1",  # or gpt-5-nano if available
             messages=[
                 {
                     "role": "system",
@@ -521,9 +523,8 @@ if "chat_history" not in st.session_state:
 user_input = st.chat_input("Ask me about your gene or variant...")
 if user_input:
     st.session_state.chat_history.append({"role": "user", "content": user_input})
-    full_prompt = user_input
     with st.spinner("Thinking..."):
-        bot_reply = query_openai(full_prompt)
+        bot_reply = query_openai(user_input)
     st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
 
 # Display chat history
