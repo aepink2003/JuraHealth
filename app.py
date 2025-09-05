@@ -485,63 +485,46 @@ function updateStep(i) {{
 # ============================================================
 
 
-# --- CHAT BOT FUNCTION ---
-
 from openai import OpenAI
 import streamlit as st
 
+# --- Chat function ---
 def query_openai(prompt):
     api_key = st.secrets.get("OPENAI_API_KEY")
     if not api_key:
-        return None, "OpenAI API key not found. Please set OPENAI_API_KEY in Streamlit Secrets."
+        return "OpenAI API key not found. Please set OPENAI_API_KEY in Streamlit Secrets."
 
     client = OpenAI(api_key=api_key)
 
     try:
         response = client.chat.completions.create(
-            model="gpt-5-nano",
+            model="gpt-5-nano",  # or gpt-4, gpt-4.1
             messages=[
                 {
                     "role": "system",
                     "content": (
-                        "You are an expert geneticist explaining variants and genes simply "
-                        "and clearly as if you were talking to a middle schooler. "
-                        "ALWAYS INCLUDE A DISCLAIMER THAT YOU ARE AN AI AND INFORMATION MAY BE INACCURATE."
+                        "You are an expert geneticist explaining variants clearly and simply. "
+                        "Always include a disclaimer that you are an AI and information may be inaccurate."
                     )
                 },
                 {"role": "user", "content": prompt}
             ]
         )
-        return response.choices[0].message.content, None
+        return response.choices[0].message.content
     except Exception as e:
-        return None, f"Error calling OpenAI API: {str(e)}"
+        return f"Error calling OpenAI API: {e}"
 
-# --- CHAT UI ---
-
+# --- Streamlit chat UI ---
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-user_message = st.chat_input("Ask me about your gene or variant...")
-
-if user_message:
-    st.session_state.chat_history.append({"role": "user", "content": user_message})
-
-    # context from app
-    context = ""
-    if "gene_name" in st.session_state:
-        context += f"Gene: {st.session_state.gene_name}\n"
-    if "variant_str" in st.session_state:
-        context += f"Variant: {st.session_state.variant_str}\n"
-
-    full_prompt = f"{context}\nUser Question: {user_message}" if context else user_message
-
+user_input = st.chat_input("Ask me about your gene or variant...")
+if user_input:
+    st.session_state.chat_history.append({"role": "user", "content": user_input})
+    full_prompt = user_input
     with st.spinner("Thinking..."):
-        bot_reply, error = query_openai(full_prompt)
-
-    if error:
-        st.error(error)
-    else:
-        st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
+        bot_reply = query_openai(full_prompt)
+    st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
 
 # Display chat history
 for msg in st.session_state.chat_history:
