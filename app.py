@@ -41,14 +41,15 @@ st.markdown("""
         box-sizing: border-box;
         max-width: 100%;
     }
-    /* Uniform walkthrough containers and images on desktop */
-    #walkthrough_container, #ideo-container {
+    /* Uniform walkthrough containers and images on desktop (fixed size) */
+    #walkthrough_container,
+    #ideo-container {
         width: 500px;
         height: 400px;
-        max-width: 500px;
-        max-height: 400px;
         min-width: 500px;
         min-height: 400px;
+        max-width: 500px;
+        max-height: 400px;
         aspect-ratio: 5/4;
         margin: auto;
         display: flex;
@@ -59,35 +60,25 @@ st.markdown("""
     #walkthrough {
         width: 500px;
         height: 400px;
-        max-width: 500px;
-        max-height: 400px;
         min-width: 500px;
         min-height: 400px;
+        max-width: 500px;
+        max-height: 400px;
         aspect-ratio: 5/4;
         object-fit: contain;
         display: block;
         margin: auto;
         box-sizing: border-box;
     }
-    #ideo-container {
-        width: 500px;
-        height: 400px;
-        max-width: 500px;
-        max-height: 400px;
-        min-width: 500px;
-        min-height: 400px;
-        aspect-ratio: 5/4;
-        margin: auto;
-        box-sizing: border-box;
-    }
-    /* Gallery images: uniform square thumbnails on desktop */
-    .step-gallery-img, .gallery-thumb img {
+    /* Gallery images: uniform square thumbnails on desktop (fixed size) */
+    .step-gallery-img,
+    .gallery-thumb img {
         width: 200px;
         height: 200px;
-        max-width: 200px;
-        max-height: 200px;
         min-width: 200px;
         min-height: 200px;
+        max-width: 200px;
+        max-height: 200px;
         object-fit: contain;
         display: block;
         margin: auto;
@@ -97,10 +88,10 @@ st.markdown("""
     .gallery-thumb {
         width: 200px;
         height: 200px;
-        max-width: 200px;
-        max-height: 200px;
         min-width: 200px;
         min-height: 200px;
+        max-width: 200px;
+        max-height: 200px;
         aspect-ratio: 1/1;
         box-sizing: border-box;
         display: flex;
@@ -108,24 +99,25 @@ st.markdown("""
         justify-content: center;
         align-items: center;
     }
-    /* Responsive: shrink containers and images on mobile, keep aspect ratio */
+    /* Responsive: scale containers and images on mobile, keeping aspect ratios */
     @media (max-width: 600px) {
-        #walkthrough_container, #ideo-container {
-            width: 98vw !important;
-            max-width: 98vw !important;
+        #walkthrough_container,
+        #ideo-container {
+            width: 90vw !important;
             min-width: 0 !important;
-            height: calc(98vw * 0.8) !important;
-            max-height: calc(98vw * 0.8) !important;
+            max-width: 90vw !important;
+            height: calc(90vw * 0.8) !important;
             min-height: 0 !important;
+            max-height: calc(90vw * 0.8) !important;
             aspect-ratio: 5/4 !important;
         }
         #walkthrough {
-            width: 98vw !important;
-            max-width: 98vw !important;
+            width: 90vw !important;
             min-width: 0 !important;
-            height: calc(98vw * 0.8) !important;
-            max-height: calc(98vw * 0.8) !important;
+            max-width: 90vw !important;
+            height: calc(90vw * 0.8) !important;
             min-height: 0 !important;
+            max-height: calc(90vw * 0.8) !important;
             aspect-ratio: 5/4 !important;
         }
         .stButton>button {
@@ -135,20 +127,21 @@ st.markdown("""
         }
         .gallery-thumb {
             width: 40vw !important;
-            max-width: 40vw !important;
             min-width: 0 !important;
+            max-width: 40vw !important;
             height: 40vw !important;
-            max-height: 40vw !important;
             min-height: 0 !important;
+            max-height: 40vw !important;
             aspect-ratio: 1/1 !important;
         }
-        .step-gallery-img, .gallery-thumb img {
+        .step-gallery-img,
+        .gallery-thumb img {
             width: 40vw !important;
-            max-width: 40vw !important;
             min-width: 0 !important;
+            max-width: 40vw !important;
             height: 40vw !important;
-            max-height: 40vw !important;
             min-height: 0 !important;
+            max-height: 40vw !important;
             aspect-ratio: 1/1 !important;
         }
     }
