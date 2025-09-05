@@ -46,7 +46,7 @@ if "show_intro" not in st.session_state:
 
 # --- DISCLAIMER BOX ---
 st.markdown("""
-<div style="background-color:#FFCCCC; border-left:6px solid red; padding:12px; border-radius:8px; font-size:1.1em; color:black; margin:16px 0;">
+<div style="background-color:#FFCCCC; border:6px solid red; padding:12px; border-radius:8px; font-size:1.1em; color:black; margin:16px 0;">
     <strong>Disclaimer:</strong> This page is still under construction. Always consult with a licensed professional for medical or genetic questions.
 </div>
 """, unsafe_allow_html=True)
