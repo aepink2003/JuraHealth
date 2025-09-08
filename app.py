@@ -548,12 +548,12 @@ def query_openai(prompt):
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# --- Debug: Show available secret keys (names only) ---
-with st.expander("Debug: Secrets keys (names only)"):
-    try:
-        st.write("Available secret keys:", list(st.secrets.keys()))
-    except Exception:
-        st.write("No st.secrets available (running locally without .streamlit/secrets.toml?)")
+# # --- Debug: Show available secret keys (names only) ---
+# with st.expander("Debug: Secrets keys (names only)"):
+#     try:
+#         st.write("Available secret keys:", list(st.secrets.keys()))
+#     except Exception:
+#         st.write("No st.secrets available (running locally without .streamlit/secrets.toml?)")
 
 user_input = st.chat_input("Ask me about your gene or variant...")
 if user_input:
