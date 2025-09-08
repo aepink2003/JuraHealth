@@ -42,40 +42,46 @@ st.markdown("""
         max-width: 100%;
     }
 
-    /* Desktop: fixed uniform size */
-    #walkthrough_container,
-    #ideo-container {
+    /* Desktop: uniform fixed size for main container */
+    #walkthrough_container, #ideo-container {
         width: 500px;
         height: 400px;
+        max-width: 500px;
+        max-height: 400px;
         margin: auto;
         display: flex;
         justify-content: center;
         align-items: center;
-        box-sizing: border-box;
     }
-    #walkthrough {
-        width: 500px;
-        height: 400px;
-        object-fit: contain;
-    }
-    .gallery-thumb,
-    .gallery-thumb img {
-        width: 200px;
-        height: 200px;
+    #walkthrough, #ideo-container img {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
         object-fit: contain;
     }
 
-    /* Mobile: responsive scaling, same aspect ratio */
+    /* Gallery thumbnails: uniform size */
+    .gallery-thumb, .gallery-thumb img {
+        width: 200px;
+        height: 200px;
+        max-width: 200px;
+        max-height: 200px;
+        object-fit: contain;
+    }
+
+    /* Mobile: responsive scaling */
     @media (max-width: 600px) {
-        #walkthrough_container,
-        #ideo-container,
-        #walkthrough {
+        #walkthrough_container, #ideo-container {
             width: 90vw;
             height: auto;
-            max-height: 80vh;
+            aspect-ratio: 5/4;
         }
-        .gallery-thumb,
-        .gallery-thumb img {
+        #walkthrough, #ideo-container img {
+            width: 100%;
+            height: 100%;
+        }
+        .gallery-thumb, .gallery-thumb img {
             width: 40vw;
             height: auto;
             max-height: 40vw;
