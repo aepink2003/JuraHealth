@@ -42,77 +42,43 @@ st.markdown("""
         max-width: 100%;
     }
 
-    /* --- Uniform image containers --- */
-    .image-frame {
-        width: 320px;
-        height: 256px;
-        background: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 3px solid #7B2CBF;
-        border-radius: 12px;
+    /* Desktop: fixed uniform size */
+    #walkthrough_container,
+    #ideo-container {
+        width: 500px;
+        height: 400px;
         margin: auto;
-        box-sizing: border-box;
-        overflow: hidden;
-        aspect-ratio: 5/4;
-    }
-    .image-frame img, .image-frame .ideo-div {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        display: block;
-        background: #fff;
-    }
-    /* Gallery thumbnails */
-    .gallery-thumb {
-        width: 120px;
-        height: 96px;
         display: flex;
-        flex-direction: column;
-        align-items: center;
         justify-content: center;
-        border-radius: 8px;
-        overflow: hidden;
-        background: #F3F0FF;
-        border: 2px solid #7B2CBF;
-        margin-bottom: 8px;
+        align-items: center;
         box-sizing: border-box;
-        cursor: pointer;
     }
-    .gallery-thumb .image-frame {
-        width: 100px;
-        height: 80px;
-        border: none;
-        margin: 0;
-    }
-    .gallery-thumb img, .gallery-thumb .ideo-div {
-        width: 100%;
-        height: 100%;
+    #walkthrough {
+        width: 500px;
+        height: 400px;
         object-fit: contain;
-        display: block;
-        background: #fff;
+    }
+    .gallery-thumb,
+    .gallery-thumb img {
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
     }
 
     /* Mobile: responsive scaling, same aspect ratio */
     @media (max-width: 600px) {
-        .image-frame {
+        #walkthrough_container,
+        #ideo-container,
+        #walkthrough {
             width: 90vw;
-            height: calc(90vw * 0.8);
-            max-width: 100vw;
-            max-height: 80vw;
+            height: auto;
+            max-height: 80vh;
         }
-        .gallery-thumb {
-            width: 38vw;
-            height: calc(38vw * 0.8);
-            max-width: 160px;
-            max-height: 128px;
-        }
-        .gallery-thumb .image-frame {
-            width: 32vw;
-            height: calc(32vw * 0.8);
-            max-width: 128px;
-            max-height: 102px;
+        .gallery-thumb,
+        .gallery-thumb img {
+            width: 40vw;
+            height: auto;
+            max-height: 40vw;
         }
         .stButton>button {
             width: 100% !important;
@@ -322,83 +288,98 @@ if st.session_state.gene_name and st.session_state.variant_str:
     html = f"""
     <div style="font-family: sans-serif; color:black; text-align:center;">
         <div><strong>Gene:</strong> {gene_name} &nbsp;|&nbsp; <strong>Chromosome number:</strong> {chromosome_num} &nbsp;|&nbsp; <strong>Chromosome arm:</strong> {arm} &nbsp;|&nbsp; <strong>Variant:</strong> {variant_str}</div>
+
         <div style="margin-top:12px;">
             <button id="backBtn" style="background-color:#7B2CBF; color:white; border:none; border-radius:8px; padding:0.5em 1em; margin-right:1em; cursor:pointer;">&lt;-- Back</button>
             <button id="nextBtn" style="background-color:#7B2CBF; color:white; border:none; border-radius:8px; padding:0.5em 1em; margin-left:1em; cursor:pointer;">Next --&gt;</button>
         </div>
+
         <div id="caption" style="margin-top:8px; font-size:1.1em;">
             {captions_list[st.session_state.step_idx]}
         </div>
-        <div id="walkthrough_container" style="margin:auto; cursor:pointer;">
-            <div class="image-frame" id="main-image-frame" style="margin:auto;">
-                <div id="ideo-container" class="ideo-div" style="width:100%; height:100%; display:none;"></div>
-                <img id="walkthrough" style="width:100%; height:100%; object-fit:contain; display:none;" />
-            </div>
+        <div id="walkthrough_container" style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; max-width:500px; width:100%; margin:auto; display:flex; justify-content:center; align-items:center; aspect-ratio:5/4;">
+"""
+
+    # Insert static ideogram container (always present, but hidden unless IDEO_BLOCK step)
+    html += f"""
+    <div id="ideo-container" style="max-width:500px; width:100%; aspect-ratio:5/4; display:none;"></div>
+    <img id="walkthrough" style="max-width:100%; width:100%; height:auto; object-fit:contain; display:none;" />
+    <script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
+    <script>
+    if (!window.myIdeogram) {{
+        window.myIdeogram = new Ideogram({{
+            organism: 'human',
+            container: '#ideo-container',
+            chromosomes: ["{chromosome_num}"],
+            resolution: 550,
+            chrHeight: 300,
+            chrMargin: 20,
+            chrLabelSize: 18,
+            showChromosomeLabels: true,
+            annotationHeight: 6,
+            annotations: [{{
+                name: "{gene_name}",
+                chr: "{chromosome_num}",
+                start: {ideo_start},
+                stop: {ideo_stop}
+            }}]
+        }});
+    }}
+    </script>
+
+""" 
+
+    html += """
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
-        <script>
-        if (!window.myIdeogram) {{
-            window.myIdeogram = new Ideogram({{
-                organism: 'human',
-                container: '#ideo-container',
-                chromosomes: ["{chromosome_num}"],
-                resolution: 550,
-                chrHeight: 300,
-                chrMargin: 20,
-                chrLabelSize: 18,
-                showChromosomeLabels: true,
-                annotationHeight: 6,
-                annotations: [{{
-                    name: "{gene_name}",
-                    chr: "{chromosome_num}",
-                    start: {ideo_start},
-                    stop: {ideo_stop}
-                }}]
-            }});
-        }}
-        </script>
-        <script>
-            const frames = """ + json.dumps(frame_data) + """;
-            const captions = """ + json.dumps(captions_list) + """;
-            let idx = """ + str(st.session_state.step_idx) + """;
-            const cap = document.getElementById("caption");
-            const backBtn = document.getElementById("backBtn");
-            const nextBtn = document.getElementById("nextBtn");
-            const ideoDiv = document.getElementById("ideo-container");
-            const walkthroughImg = document.getElementById("walkthrough");
-            function renderFrame(i) {{
-                const frame = frames[i];
-                cap.textContent = captions[i];
-                if (frame === "IDEO_BLOCK") {{
-                    ideoDiv.style.display = 'block';
-                    walkthroughImg.style.display = 'none';
-                }} else {{
-                    ideoDiv.style.display = 'none';
-                    walkthroughImg.style.display = 'block';
-                    walkthroughImg.src = frame;
-                }}
-            }}
-            // Initial render
-            renderFrame(idx);
-            backBtn.addEventListener("click", () => {{
-                if (idx > 0) {{
-                    idx--;
-                    renderFrame(idx);
-                }}
-            }});
-            nextBtn.addEventListener("click", () => {{
-                if (idx < frames.length - 1) {{
-                    idx++;
-                    renderFrame(idx);
-                }}
-            }});
-            document.getElementById("walkthrough_container").addEventListener("click", () => {{
-                if (idx < frames.length - 1) {{
-                    idx++;
-                    renderFrame(idx);
-                }}
-            }});
-        </script>
+    <script>
+        const frames = """ + json.dumps(frame_data) + """;
+        const captions = """ + json.dumps(captions_list) + """;
+        let idx = """ + str(st.session_state.step_idx) + """;
+
+        const container = document.getElementById("walkthrough_container");
+        const cap = document.getElementById("caption");
+        const backBtn = document.getElementById("backBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const ideoDiv = document.getElementById("ideo-container");
+        const walkthroughImg = document.getElementById("walkthrough");
+
+        function renderFrame(i) {
+            const frame = frames[i];
+            cap.textContent = captions[i];
+            if (frame === "IDEO_BLOCK") {
+                ideoDiv.style.display = 'block';
+                walkthroughImg.style.display = 'none';
+            } else {
+                ideoDiv.style.display = 'none';
+                walkthroughImg.style.display = 'block';
+                walkthroughImg.src = frame;
+            }
+        }
+
+        // Initial render
+        renderFrame(idx);
+
+        backBtn.addEventListener("click", () => {
+            if (idx > 0) {
+                idx--;
+                renderFrame(idx);
+            }
+        });
+
+        nextBtn.addEventListener("click", () => {
+            if (idx < frames.length - 1) {
+                idx++;
+                renderFrame(idx);
+            }
+        });
+
+        container.addEventListener("click", () => {
+            if (idx < frames.length - 1) {
+                idx++;
+                renderFrame(idx);
+            }
+        });
+    </script>
     </div>
     """
 
@@ -406,19 +387,19 @@ if st.session_state.gene_name and st.session_state.variant_str:
     gallery_html = f"""
 <div style="padding-top:0; text-align:center;">
     <h3 style="margin:4px 0; padding:0;">Step Gallery</h3>
-    <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:0; padding-top:0;">
-"""
+    <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-top:0; padding-top:0;">
+    """
     for i, (fname, data) in enumerate(frames):
         if fname == "IDEO_BLOCK":
-            thumb = "<div class='image-frame' style='background:#F3F0FF; color:#7B2CBF; font-weight:bold; display:flex; align-items:center; justify-content:center;'>Ideogram</div>"
+            thumb = "<div style='width:100%; max-width:200px; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; background:#F3F0FF; color:#7B2CBF; font-weight:bold; border:2px solid #7B2CBF; border-radius:8px;'>Ideogram</div>"
         else:
-            thumb = f"<div class='image-frame'><img src='data:image/png;base64,{data}' alt='Step {i+1}' /></div>"
+            thumb = f"<img src='data:image/png;base64,{data}' style='width:100%; max-width:200px; height:auto; object-fit:contain; border:2px solid #7B2CBF; border-radius:8px;'/>"
         gallery_html += f"""
-        <div class="gallery-thumb" onclick="updateStep({i})">
+        <div class="gallery-thumb" style="text-align:center; cursor:pointer; max-width:200px;" onclick="updateStep({i})">
             {thumb}
-            <div style="margin-top:4px; font-size:0.95em;">Step {i+1}</div>
+            <div style="margin-top:4px;">Step {i+1}</div>
         </div>
-"""
+    """
     gallery_html += f"""
     </div>
 </div>
