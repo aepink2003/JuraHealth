@@ -41,12 +41,16 @@ st.markdown("""
         box-sizing: border-box;
         max-width: 100%;
     }
-
-    /* Desktop: fixed uniform size */
+    /* Uniform walkthrough containers and images on desktop (fixed size) */
     #walkthrough_container,
     #ideo-container {
         width: 500px;
         height: 400px;
+        min-width: 500px;
+        min-height: 400px;
+        max-width: 500px;
+        max-height: 400px;
+        aspect-ratio: 5/4;
         margin: auto;
         display: flex;
         justify-content: center;
@@ -56,34 +60,89 @@ st.markdown("""
     #walkthrough {
         width: 500px;
         height: 400px;
+        min-width: 500px;
+        min-height: 400px;
+        max-width: 500px;
+        max-height: 400px;
+        aspect-ratio: 5/4;
         object-fit: contain;
+        display: block;
+        margin: auto;
+        box-sizing: border-box;
     }
-    .gallery-thumb,
+    /* Gallery images: uniform square thumbnails on desktop (fixed size) */
+    .step-gallery-img,
     .gallery-thumb img {
         width: 200px;
         height: 200px;
+        min-width: 200px;
+        min-height: 200px;
+        max-width: 200px;
+        max-height: 200px;
         object-fit: contain;
+        display: block;
+        margin: auto;
+        aspect-ratio: 1/1;
+        box-sizing: border-box;
     }
-
-    /* Mobile: responsive scaling, same aspect ratio */
+    .gallery-thumb {
+        width: 200px;
+        height: 200px;
+        min-width: 200px;
+        min-height: 200px;
+        max-width: 200px;
+        max-height: 200px;
+        aspect-ratio: 1/1;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    /* Responsive: scale containers and images on mobile, keeping aspect ratios */
     @media (max-width: 600px) {
         #walkthrough_container,
-        #ideo-container,
-        #walkthrough {
-            width: 90vw;
-            height: auto;
-            max-height: 80vh;
+        #ideo-container {
+            width: 90vw !important;
+            min-width: 0 !important;
+            max-width: 90vw !important;
+            height: calc(90vw * 0.8) !important;
+            min-height: 0 !important;
+            max-height: calc(90vw * 0.8) !important;
+            aspect-ratio: 5/4 !important;
         }
-        .gallery-thumb,
-        .gallery-thumb img {
-            width: 40vw;
-            height: auto;
-            max-height: 40vw;
+        #walkthrough {
+            width: 90vw !important;
+            min-width: 0 !important;
+            max-width: 90vw !important;
+            height: calc(90vw * 0.8) !important;
+            min-height: 0 !important;
+            max-height: calc(90vw * 0.8) !important;
+            aspect-ratio: 5/4 !important;
         }
         .stButton>button {
             width: 100% !important;
             min-width: 0;
             box-sizing: border-box;
+        }
+        .gallery-thumb {
+            width: 40vw !important;
+            min-width: 0 !important;
+            max-width: 40vw !important;
+            height: 40vw !important;
+            min-height: 0 !important;
+            max-height: 40vw !important;
+            aspect-ratio: 1/1 !important;
+        }
+        .step-gallery-img,
+        .gallery-thumb img {
+            width: 40vw !important;
+            min-width: 0 !important;
+            max-width: 40vw !important;
+            height: 40vw !important;
+            min-height: 0 !important;
+            max-height: 40vw !important;
+            aspect-ratio: 1/1 !important;
         }
     }
 </style>
