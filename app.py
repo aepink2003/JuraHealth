@@ -10,9 +10,7 @@ import openai
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Gene Variant Visualizer", page_icon="🧬", layout="centered")
-# --- Responsive meta viewport and responsive styles ---
 st.markdown("""
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
     body {
         background-color: white;
@@ -24,60 +22,9 @@ st.markdown("""
         border-radius: 8px;
         padding: 0.5em 1em;
         border: none;
-        transition: background 0.2s;
     }
     .stButton>button:hover {
         background-color: #9D4EDD;
-    }
-    /* Disclaimer box keeps red border and large font */
-    .disclaimer-box {
-        background-color: #FFCCCC;
-        border: 6px solid red;
-        padding: 12px;
-        border-radius: 8px;
-        font-size: 1.25em;
-        color: black;
-        margin: 16px 0;
-        box-sizing: border-box;
-        max-width: 100%;
-    }
-    /* Uniform walkthrough containers and images (fixed size, no min/max, no aspect-ratio) */
-    #walkthrough_container,
-    #ideo-container {
-        width: 500px;
-        height: 400px;
-        margin: auto;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-sizing: border-box;
-    }
-    #walkthrough {
-        width: 500px;
-        height: 400px;
-        object-fit: contain;
-        display: block;
-        margin: auto;
-        box-sizing: border-box;
-    }
-    /* Gallery images: uniform square thumbnails (fixed size, no min/max, no aspect-ratio) */
-    .step-gallery-img,
-    .gallery-thumb img {
-        width: 200px;
-        height: 200px;
-        object-fit: contain;
-        display: block;
-        margin: auto;
-        box-sizing: border-box;
-    }
-    .gallery-thumb {
-        width: 200px;
-        height: 200px;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -97,17 +44,8 @@ fun_facts = [
 if "show_intro" not in st.session_state:
     st.session_state.show_intro = True
 
-# --- DISCLAIMER BOX ---
-st.markdown("""
-<div class="disclaimer-box">
-    <strong>Disclaimer:</strong> This page is under construction. Always consult with a licensed professional for medical or genetic questions.
-</div>
-""", unsafe_allow_html=True)
-
 if st.session_state.show_intro:
-    st.title(" Welcome to the Gene Variant Visualizer")
-
-    
+    st.title("🧬 Welcome to the Gene Variant Visualizer")
 
     st.markdown("""
     This tool was designed to make understanding your genetic variant easier.  
@@ -117,8 +55,8 @@ if st.session_state.show_intro:
     
     fact = random.choice(fun_facts)
     st.markdown(f"""
-    <div style="background-color:#F3F0FF; padding:12px; border-radius:8px; font-size:1.1em; color:black; margin:16px 0;">
-        <strong>Did you know?</strong> {fact}
+    <div style="background-color:#F3F0FF; border-left:6px solid #7B2CBF; padding:12px; border-radius:8px; font-size:1.1em; color:black; margin:16px 0;">
+        💡 <strong>Did you know?</strong> {fact}
     </div>
     """, unsafe_allow_html=True)
 
@@ -290,37 +228,36 @@ if st.session_state.gene_name and st.session_state.variant_str:
         <div id="caption" style="margin-top:8px; font-size:1.1em;">
             {captions_list[st.session_state.step_idx]}
         </div>
-        <div id="walkthrough_container" style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:500px; height:400px; margin:auto; display:flex; justify-content:center; align-items:center; overflow:hidden;">
+        <div id="walkthrough_container" style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:500px; height:400px; margin:auto; display:flex; justify-content:center; align-items:center;">
 """
 
     # Insert static ideogram container (always present, but hidden unless IDEO_BLOCK step)
-    html += f"""
-    <div id="ideo-container" style="width:500px; height:400px; display:none;"></div>
-    <img id="walkthrough" style="width:500px; height:400px; object-fit:contain; display:none;" />
-    <script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
-    <script>
-    if (!window.myIdeogram) {{
-        window.myIdeogram = new Ideogram({{
-            organism: 'human',
-            container: '#ideo-container',
-            chromosomes: ["{chromosome_num}"],
-            resolution: 550,
-            chrHeight: 300,
-            chrMargin: 20,
-            chrLabelSize: 18,
-            showChromosomeLabels: true,
-            annotationHeight: 6,
-            annotations: [{{
-                name: "{gene_name}",
-                chr: "{chromosome_num}",
-                start: {ideo_start},
-                stop: {ideo_stop}
-            }}]
-        }});
-    }}
-    </script>
-
-""" 
+    html += """
+        <div id="ideo-container" style="width:500px; height:400px; display:none;"></div>
+        <img id="walkthrough" style="width:500px; height:400px; object-fit:contain; display:none;" />
+        <script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
+        <script>
+        if (!window.myIdeogram) {
+            window.myIdeogram = new Ideogram({
+                organism: 'human',
+                container: '#ideo-container',
+                chromosomes: ["%s"],
+                resolution: 550,
+                chrHeight: 300,
+                chrMargin: 20,
+                chrLabelSize: 18,
+                showChromosomeLabels: true,
+                annotationHeight: 6,
+                annotations: [{
+                    name: "%s",
+                    chr: "%s",
+                    start: %d,
+                    stop: %d
+                }]
+            });
+        }
+        </script>
+""" % (chromosome_num, gene_name, chromosome_num, ideo_start, ideo_stop)
 
     html += """
         </div>
@@ -386,9 +323,9 @@ if st.session_state.gene_name and st.session_state.variant_str:
         if fname == "IDEO_BLOCK":
             thumb = "<div style='width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:#F3F0FF; color:#7B2CBF; font-weight:bold; border:2px solid #7B2CBF; border-radius:8px;'>Ideogram</div>"
         else:
-            thumb = f"<img class='step-gallery-img' src='data:image/png;base64,{data}' style='border:2px solid #7B2CBF; border-radius:8px; background:white;'/>"
+            thumb = f"<img src='data:image/png;base64,{data}' style='width:200px; height:200px; object-fit:contain; border:2px solid #7B2CBF; border-radius:8px;'/>"
         gallery_html += f"""
-        <div class="gallery-thumb" style="text-align:center; cursor:pointer; max-width:200px;" onclick="updateStep({i})">
+        <div style="text-align:center; cursor:pointer;" onclick="updateStep({i})">
             {thumb}
             <div style="margin-top:4px;">Step {i+1}</div>
         </div>
@@ -407,6 +344,22 @@ function updateStep(i) {{
     combined_html = html + gallery_html
 
     st.components.v1.html(combined_html, height=1200)
+
+    # --- CSS BUTTON STYLE ---
+    st.markdown("""
+    <style>
+    .stButton>button {
+        background-color: #7B2CBF;
+        color: white;
+        border-radius: 8px;
+        padding: 0.5em 1em;
+        border: none;
+    }
+    .stButton>button:hover {
+        background-color: #9D4EDD;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     # --- CSS BUTTON STYLE ---
 # Already included responsive button style above, omit duplicate.
