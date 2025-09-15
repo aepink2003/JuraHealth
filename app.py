@@ -290,13 +290,13 @@ if st.session_state.gene_name and st.session_state.variant_str:
         <div id="caption" style="margin-top:8px; font-size:1.1em;">
             {captions_list[st.session_state.step_idx]}
         </div>
-        <div id="walkthrough_container" style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; max-width:500px; width:100%; margin:auto; display:flex; justify-content:center; align-items:center; aspect-ratio:5/4;">
+        <div id="walkthrough_container" style="cursor:pointer; border:3px solid #7B2CBF; border-radius:12px; width:500px; height:400px; margin:auto; display:flex; justify-content:center; align-items:center; overflow:hidden;">
 """
 
     # Insert static ideogram container (always present, but hidden unless IDEO_BLOCK step)
     html += f"""
-    <div id="ideo-container" style="max-width:500px; width:100%; aspect-ratio:5/4; display:none;"></div>
-    <img id="walkthrough" style="max-width:100%; width:100%; height:auto; object-fit:contain; display:none;" />
+    <div id="ideo-container" style="width:500px; height:400px; display:none;"></div>
+    <img id="walkthrough" style="width:500px; height:400px; object-fit:contain; display:none;" />
     <script src="https://cdn.jsdelivr.net/npm/ideogram/dist/js/ideogram.min.js"></script>
     <script>
     if (!window.myIdeogram) {{
@@ -384,9 +384,9 @@ if st.session_state.gene_name and st.session_state.variant_str:
     """
     for i, (fname, data) in enumerate(frames):
         if fname == "IDEO_BLOCK":
-            thumb = "<div style='width:100%; max-width:200px; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; background:#F3F0FF; color:#7B2CBF; font-weight:bold; border:2px solid #7B2CBF; border-radius:8px;'>Ideogram</div>"
+            thumb = "<div style='width:200px; height:200px; display:flex; align-items:center; justify-content:center; background:#F3F0FF; color:#7B2CBF; font-weight:bold; border:2px solid #7B2CBF; border-radius:8px;'>Ideogram</div>"
         else:
-            thumb = f"<img src='data:image/png;base64,{data}' style='width:100%; max-width:200px; height:auto; object-fit:contain; border:2px solid #7B2CBF; border-radius:8px;'/>"
+            thumb = f"<img class='step-gallery-img' src='data:image/png;base64,{data}' style='border:2px solid #7B2CBF; border-radius:8px; background:white;'/>"
         gallery_html += f"""
         <div class="gallery-thumb" style="text-align:center; cursor:pointer; max-width:200px;" onclick="updateStep({i})">
             {thumb}
