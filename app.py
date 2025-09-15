@@ -26,8 +26,32 @@ st.markdown("""
     .stButton>button:hover {
         background-color: #9D4EDD;
     }
+    /* Disclaimer box styling */
+    .disclaimer-box {
+        background-color: #FFF3CD;
+        color: #856404;
+        border-left: 6px solid #FFDD57;
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin: 18px 0 24px 0;
+        font-size: 1.05em;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .disclaimer-box strong {
+        font-weight: 700;
+    }
 </style>
 """, unsafe_allow_html=True)
+
+# --- DISCLAIMER BOX ---
+st.markdown(
+    """
+    <div class="disclaimer-box">
+        <strong>Disclaimer:</strong> This tool provides general educational information about genes and genetic variants. It is <u>not</u> medical advice and may be incomplete or inaccurate. Always consult a doctor or genetic counselor for personalized interpretation of your results.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 import random
 
 # --- FUN FACTS ---
