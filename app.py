@@ -399,7 +399,7 @@ def _get_openai_api_key():
     return key
 
 # --- Chat function ---
-def query_openai(prompt):
+def query_openai(prompt, gene_name=None, variant_str=None):
     api_key = _get_openai_api_key()
     if not api_key:
         # Do NOT crash—return a helpful note that also renders in chat
@@ -411,6 +411,17 @@ def query_openai(prompt):
             "```\n[openai]\nOPENAI_API_KEY = \"sk-...\"\n```\n"
             "You can also set the `OPENAI_API_KEY` environment variable."
         )
+
+    # Build context string if provided
+    context = ""
+    if gene_name or variant_str:
+        context_lines = []
+        if gene_name:
+            context_lines.append(f"Gene: {gene_name}")
+        if variant_str:
+            context_lines.append(f"Variant: {variant_str}")
+        context = "\n".join(context_lines) + "\n\n"
+    full_prompt = context + prompt
 
     client = OpenAI(api_key=api_key)
     try:
@@ -424,7 +435,7 @@ def query_openai(prompt):
                         "Always include a disclaimer that you are an AI and information may be inaccurate."
                     ),
                 },
-                {"role": "user", "content": prompt},
+                {"role": "user", "content": full_prompt},
             ],
         )
         return response.choices[0].message.content
@@ -446,7 +457,11 @@ user_input = st.chat_input("Ask me about your gene or variant...")
 if user_input:
     st.session_state.chat_history.append({"role": "user", "content": user_input})
     with st.spinner("Thinking..."):
-        bot_reply = query_openai(user_input)
+        bot_reply = query_openai(
+            user_input,
+            gene_name=st.session_state.gene_name,
+            variant_str=st.session_state.variant_str
+        )
     st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
 
 # Display chat history
